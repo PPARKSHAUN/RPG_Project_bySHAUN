@@ -19,5 +19,6 @@ public class TitleManger : MonoBehaviour
         yield return new WaitForSeconds(time);
         intropanel.SetActive(false);
         menupanel.SetActive(true);
+        TitleBGM.PlayMusic();
     }
 }
