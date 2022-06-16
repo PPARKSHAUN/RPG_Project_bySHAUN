@@ -20,7 +20,9 @@ public class PickCharacter : MonoBehaviour
     public Transform MyCamPos;
     public Transform StartCampos;
     public GameObject ExitButton;
+    public GameObject CreateNickNameButton;
     private Transform chartr;
+    public bool CharacterClick = true;
    
     private void Start()
     {
@@ -37,7 +39,8 @@ public class PickCharacter : MonoBehaviour
     }
     public void NotSelect()
     {
-        
+        CharacterClick = false;
+        StartCoroutine(BackBtnClick());
         _myAnim.SetTrigger("Not");
         _myAnim.SetBool("IsPickState", false);
 
@@ -49,6 +52,7 @@ public class PickCharacter : MonoBehaviour
         
         if (_myAnim.GetBool("IsPickState") == false)
         {
+            
             _myAnim.SetTrigger("Pick");
             _myAnim.SetBool("IsPickState", true);
           StartCoroutine( Click(DataManger.instance.curCharcter));
@@ -84,15 +88,20 @@ public class PickCharacter : MonoBehaviour
         }
         
         ExitButton.SetActive(true);
+        CreateNickNameButton.SetActive(true);
         openpanel(DataManger.instance.curCharcter);
     }
    
-    public IEnumerator BackBtnClick()
+   
+     IEnumerator BackBtnClick()
     {
-        NotSelect();
+
+        
+   
+        CreateNickNameButton.SetActive(false);
         ExitButton.SetActive(false);
         closepanel();
-         
+       
         while (Vector3.Distance(MyCamPos.localPosition, StartCampos.localPosition) >0.1f)
         {
             
@@ -101,11 +110,12 @@ public class PickCharacter : MonoBehaviour
 
             yield return null;
         }
-       
 
 
         
-       
+
+
+
     }
     public void openpanel(Character character)
     {
