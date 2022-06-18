@@ -34,15 +34,23 @@ public class PickCharacter : MonoBehaviour
     
     private void OnMouseUpAsButton()
     {
+        if(CharacterClick !=false)
+        {
             DataManger.instance.curCharcter = character;
-            OnSelect(); 
+            OnSelect();
+        }
+            
     }
     public void NotSelect()
     {
-        CharacterClick = false;
-        StartCoroutine(BackBtnClick());
-        _myAnim.SetTrigger("Not");
-        _myAnim.SetBool("IsPickState", false);
+        for(int i= 0; i<chars.Length;i++)
+        {
+
+            chars[i].CharacterClick = false;
+            chars[i]._myAnim.SetTrigger("Not");
+            chars[i]._myAnim.SetBool("IsPickState", false);
+        }
+
 
     }
 
@@ -93,11 +101,12 @@ public class PickCharacter : MonoBehaviour
     }
    
    
-     IEnumerator BackBtnClick()
+     public IEnumerator BackBtnClick()
     {
 
+
         
-   
+
         CreateNickNameButton.SetActive(false);
         ExitButton.SetActive(false);
         closepanel();
@@ -112,8 +121,13 @@ public class PickCharacter : MonoBehaviour
         }
 
 
-        
+        for (int i = 0; i < chars.Length; i++)
+        {
 
+            chars[i].CharacterClick = true;
+           
+        }
+     
 
 
     }

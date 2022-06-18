@@ -3086,18 +3086,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1195253914}
-        m_TargetAssemblyTypeName: PickCharacter, Assembly-CSharp
-        m_MethodName: NotSelect
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &798528725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4508,17 +4496,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2fff6ec7294274557a05c4d80d02630e, type: 3}
---- !u!114 &1195253914 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8007506806467311685, guid: 26966ba318d72f94da56b3e94e868039, type: 3}
-  m_PrefabInstance: {fileID: 5516775910751206960}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81fa45c29136bf84d9994a6e25abd9dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1236039163
 GameObject:
   m_ObjectHideFlags: 0

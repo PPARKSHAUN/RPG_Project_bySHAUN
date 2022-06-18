@@ -18,8 +18,10 @@ public class UiBtnClick : MonoBehaviour
     {
        
         SoundManger.instance.SFXPlay("ButtonClick", clip);
-      
-      
+
+        PickCharacter.instance.NotSelect();
+        
+        StartCoroutine(PickCharacter.instance.BackBtnClick());
       
     }
     
