@@ -10,6 +10,7 @@ public class UiBtnClick : MonoBehaviour
     public string CharacterClass;
     public InputField Nickname;
     public AudioClip clip;
+    
     private bool CheckNickname()
     {
         return Regex.IsMatch(Nickname.text, "^[0-9a-zA-Z°¡-ÆR]*$");
@@ -25,12 +26,8 @@ public class UiBtnClick : MonoBehaviour
       
     }
     
-    public void ToParam()
-    {
-        Param param = new Param();
-        param.Add("CharacterC", CharacterClass);
-        Backend.GameData.Insert("Character", param);
-    }
+ 
+   
     public void CreateButtonClick()
     {
         CharacterClass = DataManger.instance.curCharcter.ToString();
@@ -46,7 +43,8 @@ public class UiBtnClick : MonoBehaviour
         {
             Debug.Log("´Ð³×ÀÓ »ý¼º ¿Ï·á");
             LoadingManger.LoadScene("Main");
-            ToParam();
+            UserInfo userInfo = new UserInfo();
+            userInfo.ToParam();
 
 
         }

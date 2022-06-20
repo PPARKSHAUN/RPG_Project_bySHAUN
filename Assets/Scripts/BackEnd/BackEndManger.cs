@@ -39,13 +39,15 @@ public class BackEndManger : MonoBehaviour
             JsonData userInfoJson = BRO.GetReturnValuetoJSON()["row"];
             
             
-            Debug.Log(userInfo.ToString());
+          
            if (userInfoJson["nickname"] != null)
             {
-               
 
+                userInfo.GetmyClass();
+             
                 LoadingManger.LoadScene("Main");
-            }
+                
+                }
             else
             {
                 LoadingManger.LoadScene("CreateCharacter"); //로그인 성공하고 닉네임이 null 이라면 캐릭터생성신 진입.
