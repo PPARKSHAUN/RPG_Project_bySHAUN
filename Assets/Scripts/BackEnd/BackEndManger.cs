@@ -42,9 +42,9 @@ public class BackEndManger : MonoBehaviour
           
            if (userInfoJson["nickname"] != null)
             {
-
-                userInfo.GetmyClass();
-             
+               
+                
+                
                 LoadingManger.LoadScene("Main");
                 
                 }

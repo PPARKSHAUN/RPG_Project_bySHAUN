@@ -3,62 +3,69 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using BackEnd;
-using LitJson;
+
 
 public class UserInfo : MonoBehaviour
 {
+     public static UserInfo instance=null;
     public string CharacterClass;
     public string nickname;
     public Text nicknameText;
     public string myclass;
-    Param param = new Param();
 
-
+    private void Awake()
+    {
+        DontDestroyOnLoad(transform.gameObject);
+        if (instance == null) instance = this;
+        else if (instance != null) return;
+    }
     public override string ToString()
     {
         return $"nickname : {nickname}";
     }
 
-    private void Update()
+    public  void Update()
     {
-        nickname = Backend.UserNickName;
-        Debug.Log(nickname);
-        nicknameText.text = nickname;
+     
+            StartCoroutine(GetNickName(nicknameText));
+     
+       
+      
+        
+        if( nickname != null)
+        {
+            StopCoroutine(GetNickName(nicknameText));
+        }
+      
     }
 
+    IEnumerator GetNickName(Text text)
+    {
+        while(text != null)
+        {
+            nickname = Backend.UserNickName;
+            text.text = nickname;
+            yield return null;
+        }
+    }
     public void ToParam()
     {
         CharacterClass = DataManger.instance.curCharcter.ToString();
-
+        Param param = new Param();
         param.Add("MyClass", CharacterClass);
         Backend.GameData.Insert("Character", param);
 
     }
 
-    
-    public void GetmyClass()
-    {
 
-       nickname = Backend.UserNickName;
 
-        var bro = Backend.Social.GetUserInfoByNickName(nickname);
-        JsonData json = bro.GetReturnValuetoJSON();
-      
 
-        var myclass = json["rows"][0]["MyClass"]["S"].ToString();
-        var inDate = json["row"]["inDate"].ToString();
-        Debug.Log(myclass);
-        Debug.Log(inDate);
-       
-       
-    }
 
-   
-      
+
 }
 
- 
-   
+
+
 
 
 

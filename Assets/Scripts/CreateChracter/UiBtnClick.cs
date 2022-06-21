@@ -41,10 +41,15 @@ public class UiBtnClick : MonoBehaviour
 
         if(BRO.IsSuccess())
         {
+           
             Debug.Log("닉네임 생성 완료");
             LoadingManger.LoadScene("Main");
+           
             UserInfo userInfo = new UserInfo();
             userInfo.ToParam();
+           
+          
+
 
 
         }
