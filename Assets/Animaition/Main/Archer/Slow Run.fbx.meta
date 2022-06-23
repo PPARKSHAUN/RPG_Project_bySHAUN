@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: 4df1fce3d01a2bc43b85d4853d8e3a1d
+guid: 9c425af91222c2942861c0e45dbfdfc2
 ModelImporter:
   serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: bow idle
+    second: RUN
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -35,11 +35,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: bow idle
+      name: RUN
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 153
+      lastFrame: 22
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
