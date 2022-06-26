@@ -8,45 +8,44 @@ public class CarmeraManger : MonoBehaviour
     public float x = 0f;
     public float y = 4f;
     public float z = -5f;
- 
-    Vector3 cameraPosition;
+    Vector2 m_Input;
+   
     Vector3 Armposition;
-    [SerializeField] private Transform Rotcamera;
+    public Transform follow;
+    
 
     private void Awake()
     {
         player = GameObject.FindWithTag("Player");
-        
+       
     }
 
     private void LateUpdate()
     {
        
-        cameraPosition.x = player.transform.position.x + x;
-        cameraPosition.y = player.transform.position.y + y;
-        cameraPosition.z = player.transform.position.z + z;
+      
         Armposition.y = player.transform.position.y + 1.6f;
         Armposition.x = player.transform.position.x ;
         Armposition.z = player.transform.position.z ;
-        Rotcamera.position = Armposition;
-        this.transform.position = cameraPosition;
+        follow.position = Armposition;
+
         turn();
     }
 
     void turn()
     {
-        if(Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1))
         {
-            Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"),0);
-            Vector3 camAngle = Rotcamera.rotation.eulerAngles;
-   
-         
-            Rotcamera.rotation = Quaternion.Euler(0, camAngle.y + mouseDelta.x, 0);
+            m_Input.x = Input.GetAxis("Mouse X");
+            m_Input.y = Input.GetAxis("Mouse Y");
+
+            if (m_Input.magnitude != 0)
+            {
+                Quaternion q = follow.rotation;
+                q.eulerAngles = new Vector3(0, q.eulerAngles.y + m_Input.x * 5f, q.eulerAngles.z);
+                follow.rotation = q;
+
+            }
         }
-       
-
-      
     }
-
-    
 }
