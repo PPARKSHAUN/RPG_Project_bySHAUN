@@ -23,40 +23,56 @@ public class CharacterManger : MonoBehaviour
     public LayerMask etcmask;
     public Collider[] targetIndistance;
     public List<GameObject> Targets = new List<GameObject>();
-
+    public GameObject targettingimg;
+    public GameObject myTarget;
+    public float curtarget;
+    public float targetTomyPosition;
+    public bool CanMove=true;
+    public GameObject arrow;
+    public GameObject arrowpoint;
+   
     void Awake()
     {
-        myanim = GetComponent<Animator>();  
+        myanim = GetComponent<Animator>();
         body = GetComponent<Rigidbody>();
-       
+        CanMove = true;
+      
     }
+
     private void Update()
     {
-        Delay(1f);
-        SetTartget();
-    }
-    void FixedUpdate()
-    {
+        targetIndistance = Physics.OverlapSphere(transform.position, distance, targetmask);
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-
-
-        move(h,v);
-        turn(h, v);
-        if(Input.GetMouseButtonUp(0))
+        if (myState==State.BATTLE)
         {
-            ChangeState(State.BATTLE);
+            SetTartget();
         }
-
-        if (Input.GetMouseButton(1))
+        if (targetIndistance == null)
         {
             ChangeState(State.IDLE);
         }
+        if (myanim.GetBool("IsAttack") == false && CanMove == true)
+        {
+            move(h, v);
+            turn(h, v);
+        }
+
+    }
+    void FixedUpdate()
+    {
+        
+
+       
+        
+      
+       
+        
     }
     void move(float h, float v)
     {
-        Debug.DrawRay(cam.position, cam.forward, Color.red);
+       
         
         movement.Set(h, 0, v);
        
@@ -89,16 +105,10 @@ public class CharacterManger : MonoBehaviour
         }
         
     }
-    IEnumerator Delay(float delay)
-    {
-        while(true)
-        {
-            yield return new WaitForSeconds(delay);//기다림 
-
-        }
-    }
+ 
     void SetTartget()
     {
+      
         Targets.Clear(); //배열에 계속쌓이는걸 방지하려고 클리어 하고 받기 
        targetIndistance = Physics.OverlapSphere(transform.position, distance, targetmask); // 내위치 중점, distance=사거리 구체반경,target마스크찾기위한거
 
@@ -117,13 +127,99 @@ public class CharacterManger : MonoBehaviour
                 }
             }
         }
+        if(Targets.Count != 0)//판별된 적이 1명이라도 있다면 실행되게 
+        {
 
+            if (targettingimg != null) //새로 타겟팅 됬을때 이미지를 초기화시켜주기위해 
+                targettingimg.SetActive(false);
+
+            myTarget = Targets[0];//첫번째 타겟을 나의타겟으로 넣어놓고 
+            curtarget = Vector3.Distance(transform.position, Targets[0].transform.position);// 그 타겟과 나의 거리를 계산한뒤 
+
+            for(int i=1;i<Targets.Count;i++) //for 문을 돌려주는데 i 의 0번째는 이미 들어갔기때문에 1번째부터 비교하기위해 i= 1 
+            {
+                float dist=Vector3.Distance(transform.position,Targets[i].transform.position);  //[i]번째 타겟과 내 거리를 계산하고
+                if(dist<curtarget)// [i]번째 타겟의 거리가 현재타겟의 거리보다 작으면 실행
+                {
+                    myTarget=Targets[i]; //나의타겟은 [i]번째 타겟으로바뀌고
+                    curtarget = dist; // 현재 타겟과의거리도 [i]번째 타겟의거리로 넣어준다.
+                }
+            }
+
+            targettingimg = myTarget.transform.Find("Canvas").transform.gameObject;// 나의 타겟에 캔버스를 찾아서 
+            targettingimg.SetActive(true);// 캔버스를 보이게해준다.
+        }
+        else if(Targets.Count==0 && targettingimg != null)//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
+        {
+            targettingimg.SetActive(false);
+        }
+
+        targetTomyPosition=Vector3.Distance(transform.position,myTarget.transform.position);
+        if(targetTomyPosition>distance)
+        {
+            myTarget = null;
+            targettingimg.SetActive(false);
+            targettingimg = null;
+            curtarget = 0f;
+        }
+
+      
     }
             
-    private void OnDrawGizmos()
+    
+   /* private void OnDrawGizmos()
     {
         Handles.DrawSolidArc(transform.position, Vector3.up, transform.forward, angleRange / 2, distance);
         Handles.DrawSolidArc(transform.position, Vector3.up, transform.forward, -angleRange / 2, distance);
+
+    }*/
+
+    public void DrawArrow()
+    {
+        GameObject go = Instantiate(arrow, arrowpoint.transform.position, arrowpoint.transform.rotation);
+
+    }
+    public void ArrowRecoil()
+    {
+        
+    }
+    public void OnclickAttackButton()
+    {
+        if(myanim.GetBool("IsAttack")==false)//파라메터 IsAttack false 일때 실행
+        {
+            if (targetIndistance != null) // 첫클릭시 주위에 적이 있다면 
+            {
+                ChangeState(State.BATTLE); //배틀모드로 바꿔주고 
+
+            }
+            if (myTarget != null) //배틀모드일때 타겟이 null이 아니라면 
+            {
+                CanMove = false; // 움직임제한
+                myanim.SetTrigger("Attack"); // 어택 트리거 활성화
+                transform.LookAt(myTarget.transform); // 타겟바라보게 
+            }
+            else if(myTarget ==null)
+            {
+                targetIndistance = Physics.OverlapSphere(transform.position, 100f, targetmask);
+                for(int i=0;i<targetIndistance.Length;i++)
+                {
+                    curtarget = Vector3.Distance(transform.position, targetIndistance[0].transform.position);
+                    float dist = Vector3.Distance(transform.position, targetIndistance[i].transform.position);
+                    if(dist<curtarget)
+                    {
+                        myTarget = targetIndistance[i].gameObject;
+                        curtarget = dist;
+                    }
+
+                }
+
+                //여기에 제일 가까운 타겟이 내사정거리올때까지 움직이게하는코드 
+            }
+
+
+        }
+
+
 
     }
     void ChangeState(State s)
@@ -137,6 +233,10 @@ public class CharacterManger : MonoBehaviour
                 Handbow.SetActive(false);
                 break;
             case State.IDLE:
+                myTarget = null;
+                targettingimg.SetActive(false);
+                targettingimg = null;
+              
                 moveSpeed = 6f;
                 myanim.SetTrigger("Idle");
                 if(Backbow.activeSelf==false)
@@ -165,6 +265,8 @@ public class CharacterManger : MonoBehaviour
             case State.IDLE:
                 break;
             case State.BATTLE:
+
+
                 break;
          
             case State.DIE:
