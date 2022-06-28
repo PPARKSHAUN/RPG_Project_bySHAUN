@@ -30,7 +30,7 @@ public class CharacterManger : MonoBehaviour
     public bool CanMove=true;
     public GameObject arrow;
     public GameObject arrowpoint;
-   
+    public bool fixTarget; //불값을 이용해 타겟고정할예정 
     void Awake()
     {
         myanim = GetComponent<Animator>();
@@ -41,18 +41,22 @@ public class CharacterManger : MonoBehaviour
 
     private void Update()
     {
-        targetIndistance = Physics.OverlapSphere(transform.position, distance, targetmask);
+       
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         if (myState==State.BATTLE)
         {
-            SetTartget();
+            if(fixTarget==false)// 스타트코루틴
+            {
+                StartCoroutine(SetTartget());
+            }
+           else // 스탑코루틴 
+            {
+                StopCoroutine(SetTartget());
+            }
         }
-        if (targetIndistance == null)
-        {
-            ChangeState(State.IDLE);
-        }
+        
         if (myanim.GetBool("IsAttack") == false && CanMove == true)
         {
             move(h, v);
@@ -60,16 +64,7 @@ public class CharacterManger : MonoBehaviour
         }
 
     }
-    void FixedUpdate()
-    {
-        
-
-       
-        
-      
-       
-        
-    }
+    
     void move(float h, float v)
     {
        
@@ -106,27 +101,21 @@ public class CharacterManger : MonoBehaviour
         
     }
  
-    void SetTartget()
+    public IEnumerator SetTartget()
     {
       
         Targets.Clear(); //배열에 계속쌓이는걸 방지하려고 클리어 하고 받기 
        targetIndistance = Physics.OverlapSphere(transform.position, distance, targetmask); // 내위치 중점, distance=사거리 구체반경,target마스크찾기위한거
 
-        for (int i = 0;i<targetIndistance.Length; i++) //내사거리안에 몬스터만큼 돌려주려고 한거 
+        for (int i = 0; i < targetIndistance.Length; i++) //내사거리안에 몬스터만큼 돌려주려고 한거 
         {
             Transform target = targetIndistance[i].transform; //몬스터위치 
-            Vector3 dirTarget = (target.position-transform.position).normalized; //몬스터위치 - 내포지션 normalized
-            if(Vector3.Angle(transform.forward,dirTarget)<angleRange/2) // 몬스터위치가 내가 정해놓은 부채꼴안에 내적하는지 
-            {
-                float dstTarget=Vector3.Distance(transform.position, target.position);
-                if(!Physics.Raycast(transform.position,dirTarget,distance,etcmask))
-                {
-                    Targets.Add(target.transform.gameObject);
-                 
 
-                }
-            }
+            Targets.Add(target.transform.gameObject);
+
+
         }
+        
         if(Targets.Count != 0)//판별된 적이 1명이라도 있다면 실행되게 
         {
 
@@ -138,12 +127,15 @@ public class CharacterManger : MonoBehaviour
 
             for(int i=1;i<Targets.Count;i++) //for 문을 돌려주는데 i 의 0번째는 이미 들어갔기때문에 1번째부터 비교하기위해 i= 1 
             {
+               
                 float dist=Vector3.Distance(transform.position,Targets[i].transform.position);  //[i]번째 타겟과 내 거리를 계산하고
                 if(dist<curtarget)// [i]번째 타겟의 거리가 현재타겟의 거리보다 작으면 실행
                 {
                     myTarget=Targets[i]; //나의타겟은 [i]번째 타겟으로바뀌고
                     curtarget = dist; // 현재 타겟과의거리도 [i]번째 타겟의거리로 넣어준다.
+                    
                 }
+               
             }
 
             targettingimg = myTarget.transform.Find("Canvas").transform.gameObject;// 나의 타겟에 캔버스를 찾아서 
@@ -154,25 +146,12 @@ public class CharacterManger : MonoBehaviour
             targettingimg.SetActive(false);
         }
 
-        targetTomyPosition=Vector3.Distance(transform.position,myTarget.transform.position);
-        if(targetTomyPosition>distance)
-        {
-            myTarget = null;
-            targettingimg.SetActive(false);
-            targettingimg = null;
-            curtarget = 0f;
-        }
-
-      
+      yield return null;    
     }
-            
-    
-   /* private void OnDrawGizmos()
-    {
-        Handles.DrawSolidArc(transform.position, Vector3.up, transform.forward, angleRange / 2, distance);
-        Handles.DrawSolidArc(transform.position, Vector3.up, transform.forward, -angleRange / 2, distance);
 
-    }*/
+
+
+   
 
     public void DrawArrow()
     {
@@ -198,23 +177,7 @@ public class CharacterManger : MonoBehaviour
                 myanim.SetTrigger("Attack"); // 어택 트리거 활성화
                 transform.LookAt(myTarget.transform); // 타겟바라보게 
             }
-            else if(myTarget ==null)
-            {
-                targetIndistance = Physics.OverlapSphere(transform.position, 100f, targetmask);
-                for(int i=0;i<targetIndistance.Length;i++)
-                {
-                    curtarget = Vector3.Distance(transform.position, targetIndistance[0].transform.position);
-                    float dist = Vector3.Distance(transform.position, targetIndistance[i].transform.position);
-                    if(dist<curtarget)
-                    {
-                        myTarget = targetIndistance[i].gameObject;
-                        curtarget = dist;
-                    }
-
-                }
-
-                //여기에 제일 가까운 타겟이 내사정거리올때까지 움직이게하는코드 
-            }
+           
 
 
         }
@@ -237,7 +200,7 @@ public class CharacterManger : MonoBehaviour
                 targettingimg.SetActive(false);
                 targettingimg = null;
               
-                moveSpeed = 6f;
+                
                 myanim.SetTrigger("Idle");
                 if(Backbow.activeSelf==false)
                     Backbow.SetActive(true);
@@ -245,7 +208,7 @@ public class CharacterManger : MonoBehaviour
                     Handbow.SetActive(false);
                 break;
             case State.BATTLE:
-                moveSpeed = 3f;
+               
                 myanim.SetTrigger("Battle");
                 Backbow.SetActive(false);
                 Handbow.SetActive(true);

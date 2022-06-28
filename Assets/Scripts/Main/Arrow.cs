@@ -6,7 +6,7 @@ public class Arrow : MonoBehaviour
 {
     public GameObject arrow;
     public Transform StartArrowPos;
- 
+    public int Damage;
     public float speed = 15f;
     public GameObject Target;
    
@@ -25,11 +25,22 @@ public class Arrow : MonoBehaviour
             
             if(Target!=null)
             {
-                transform.position = Vector3.MoveTowards(transform.position, Target.transform.position, 1f);//타겟의 거리까지 1초만에 날아가게 
+                transform.position = Vector3.Lerp(transform.position, Target.transform.position,Time.deltaTime * 10f);//타겟의 거리까지 1초만에 날아가게 
 
-            }
+            transform.LookAt(Target.transform);
+        }
        
         
     }
-   
+    private void OnTriggerEnter(Collider other)//무언가에 닿앗을때 호출
+    {
+        if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Monster"))) // 닿은 오브젝트 이름이 Monster일때
+        {
+
+            Destroy(this.gameObject); // 화살 삭제
+            Debug.Log("Hit"); // 디버그용 
+        }
+    }
+    
+  
 }
