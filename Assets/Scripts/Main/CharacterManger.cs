@@ -12,12 +12,11 @@ public class CharacterManger : MonoBehaviour
     public Transform cam;
     public GameObject Backbow;
     public GameObject Handbow;
-    float moveSpeed = 6f;
+    float moveSpeed = 8.5f;
     float rotationSpeed = 5f;
     Rigidbody body;
     Animator myanim;
     Vector3 movement;
-    public float angleRange = 160f;
     public float distance = 10f;
     public LayerMask targetmask;
     public LayerMask etcmask;
@@ -30,12 +29,16 @@ public class CharacterManger : MonoBehaviour
     public bool CanMove=true;
     public GameObject arrow;
     public GameObject arrowpoint;
+    public Renderer[] meshs;// 플레이어 mesh 배열 
+    public bool isDamage; // 무적시간 재는용 
     public bool fixTarget; //불값을 이용해 타겟고정할예정 
+    
     void Awake()
     {
         myanim = GetComponent<Animator>();
         body = GetComponent<Rigidbody>();
         CanMove = true;
+       
       
     }
 
@@ -64,7 +67,39 @@ public class CharacterManger : MonoBehaviour
         }
 
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "EnemyAttack") // 닿은 콜리더 tag가 EnemyAttack 일때 
+        {
+            if (!isDamage) // 무적시간 이 끝났을때 
+            {
+
+                float dmage = other.GetComponentInParent<Monster>().Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
+                Debug.Log("Hitplayer"); // 확인용 
+                StartCoroutine(Ondamage()); // 코루틴시작 
+               
+            }
+        }
+    }
+
+    IEnumerator Ondamage()
+    {
+        isDamage = true; // 무적시간 재는용 true 라면 무적 
+       for(int i=0;i<meshs.Length;i++ ) // mesh 가 여러개있어서 배열로 받아놓고 for 문돌려준다 
+        {
+            meshs[i].material.color = Color.red; //모든 mseh 를 빨간색으로변경 
+        }
+         
+        yield return new WaitForSeconds(1.0f); // 1초후 
+        for (int i = 0; i < meshs.Length; i++)
+        {
+            meshs[i].material.color = Color.white; // 모든 mesh 흰색으로 변경
+        }
+        isDamage = false; // 무적시간 재는용 false 
+    }
+   
+
     void move(float h, float v)
     {
        
@@ -144,6 +179,7 @@ public class CharacterManger : MonoBehaviour
         else if(Targets.Count==0 && targettingimg != null)//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
         {
             targettingimg.SetActive(false);
+            myTarget = null;
         }
 
       yield return null;    

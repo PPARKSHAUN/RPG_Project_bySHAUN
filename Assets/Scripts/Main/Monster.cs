@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Monster : MonoBehaviour
 {
@@ -15,15 +16,19 @@ public class Monster : MonoBehaviour
     public int Damage;
     public Renderer myrenderer;
     public Animator myanim;
-    public Vector3 pos;
     public LayerMask targetmask;
-    Vector3 TargetPos = Vector3.zero;
     public Collider[] targetIndistance;
     public GameObject myTarget;
-    public float Attackrange;
+    public float Attackrange = 3f;
+    NavMeshAgent nav;
+    public bool roaming = true;
+    [SerializeField] Vector3 pos;
+    public GameObject AttackPoint;
+
     private void Awake()
     {
         ChangeState(State.IDLE);
+        nav = GetComponent<NavMeshAgent>();
 
        
     }
@@ -44,11 +49,11 @@ public class Monster : MonoBehaviour
     }
     IEnumerator OnDamage() // ondamage코루틴 
     {
-        targetIndistance = Physics.OverlapSphere(transform.position, 20f, targetmask);
-        myTarget = targetIndistance[0].gameObject;
-        if (myTarget != null)
+        targetIndistance = Physics.OverlapSphere(transform.position, 20f, targetmask); // 20f 안에 player 타겟마스크 콜라이더 받기 
+        myTarget = targetIndistance[0].gameObject; // player 는 하나밖에없기때문에 0 번을 내타겟으로설정 
+        if (myTarget != null) // 내타겟이 null 이 아니면 
         {
-            ChangeState(State.BATTLE);
+            ChangeState(State.BATTLE); // 배틀모드로 넘어가게 
             
         }
         myrenderer.material.color= Color.red; // 몬스터 색깔 빨강으로 변경 
@@ -81,51 +86,80 @@ public class Monster : MonoBehaviour
         }
         Destroy(this.gameObject);// while 문 끝난후 몬스터 삭제 
     }
-    private void Update()
-    {
-       
-    }
+
+  
     IEnumerator Battle()
     {
-        pos = myTarget.transform.position;
-        myanim.SetBool("IsRunnig", true);
+     
+        myanim.SetBool("IsRunnig", true); // 뛰어오는 애니메이션 재생을위해 
         while (true)
         {
-            var dir = (pos - this.transform.position).normalized;
-            this.transform.LookAt(pos);
-            this.transform.position += dir * speed * Time.deltaTime;
+            
+            myanim.SetBool("IsWalking", false); // walking 이 true 로 안바뀌기위해 
 
-            float distance = Vector3.Distance(transform.position, pos);
-            if(distance<= Attackrange)
+            nav.SetDestination(myTarget.transform.position); // 따라가게 하기위한 코드 
+            if (myanim.GetBool("IsAttack")==true || myanim.GetBool("IsDamage") ==true ) // 공격애니메이션 이나 데미지애니메이션 둘중하나라도 재생중이라면 움직임이 멈추고
             {
-                if(myanim.GetBool("IsAttack")==false)
+                nav.isStopped=true;
+            }
+            else // 아니라면 움직여라
+            {
+                nav.isStopped = false;
+            }
+           
+
+            float distance = Vector3.Distance(transform.position, myTarget.transform.position); // 플레이어와 몬스터사이 거리 재기위함
+            if (distance <= Attackrange) // 거리가 어택사거리 보다 짧거나 같다면 
+            {
+                if (myanim.GetBool("IsAttack") == false) // 공격중이아니라면 
                 {
-                    myanim.SetTrigger("Attack");
+                    myanim.SetTrigger("Attack"); //공격애니메이션 재생 
+                    StartCoroutine(Attack()); // 코루틴시작 
                 }
-                
+
 
             }
+
+
+
+
+
+
             yield return null;
         }
     }
 
-    IEnumerator Roaming()
+  
+    IEnumerator Attack() 
     {
+        AttackPoint.SetActive(true); // 어택 콜리더 활성화 
         
 
-        pos = new Vector3(); //목적지 생성
-        pos.x = Random.Range(-3f, 3f); //목적지 x 값은 -3~3 사이 랜덤값
-        pos.z = Random.Range(-3f, 3f); // 목적지 z 값은 -3~3 사이 랜덤값
+        yield return new WaitForSeconds(1f);// 1초후 
+        AttackPoint.SetActive(false);// 어택콜리더 비활성화 
+
+
+}
+IEnumerator Roaming()
+    {
+        
+       
+            pos = new Vector3(); //목적지 생성
+            pos.x = Random.Range(-3f, 3f); //목적지 x 값은 -3~3 사이 랜덤값
+            pos.y = 0.116f;
+            pos.z = Random.Range(-3f, 3f); // 목적지 z 값은 -3~3 사이 랜덤값
+          
+      
        
 
         myanim.SetBool("IsWalking", true); // 처음에 움직이니까 트루 
-        while (true) 
+        while (roaming) 
         {
            
+
             var dir = (pos - this.transform.position).normalized; // pos 포지션 - 몬스터포지션 normalized 한후 
             this.transform.LookAt(pos); // 몬스터가 이동할때 이동하는곳 바라보게하기위해 
             this.transform.position += dir * speed * Time.deltaTime; // 현재포지션에 normalize * 설정한 speed * Time.deltaTime 더해주기 
-
             float distance = Vector3.Distance(transform.position, pos); // 몬스터와 목적지 사이 거리 구하기 
             if (distance <=0.1f) // 0.1 이하라면 
             {
@@ -164,9 +198,11 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Roaming());
                 break;
             case State.BATTLE:
-                speed = 5f;
-                StopCoroutine(Roaming());
-                StartCoroutine(Battle());
+                speed = 3.5f; // 몬스터 스피드 3.5 로조정 
+                roaming = false; // while 문 안돌게 설정 
+               StopCoroutine(Roaming()); // 스탑코루틴 로밍 
+                
+                StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
                
