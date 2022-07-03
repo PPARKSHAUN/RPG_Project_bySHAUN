@@ -24,13 +24,15 @@ public class Monster : MonoBehaviour
     public bool roaming = true;
     [SerializeField] Vector3 pos;
     public GameObject AttackPoint;
-
+    CharacterManger characterManger;
+    public Canvas myCanvas;
+    Vector3 Startpos;
     private void Awake()
     {
-        ChangeState(State.IDLE);
+        ChangeState(State.ROAMING);
         nav = GetComponent<NavMeshAgent>();
-
-       
+         characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
+        Startpos = this.transform.position;
     }
     private void OnTriggerEnter(Collider other)//트리거엔터가 발동될때 
     {
@@ -61,7 +63,7 @@ public class Monster : MonoBehaviour
         if(curHp>0)// 현재 hp 가 0보다크다면 
         {
             myrenderer.material.color = new Color(1, 1, 1); //원래색깔로 
-            CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
+           
             characterManger.fixTarget = true; //만약 맞았는데 현재 hp 가 0보다크면  타겟 고정을 위해 스탑 코루틴 켜줄 bool 조정 
         }
         if (curHp <= 0)//현재 hp 가 0보다 작다면
@@ -87,28 +89,34 @@ public class Monster : MonoBehaviour
         Destroy(this.gameObject);// while 문 끝난후 몬스터 삭제 
     }
 
-  
+
     IEnumerator Battle()
     {
-     
+
+
         myanim.SetBool("IsRunnig", true); // 뛰어오는 애니메이션 재생을위해 
         while (true)
         {
-            
+            float distance = Vector3.Distance(transform.position, myTarget.transform.position); // 플레이어와 몬스터사이 거리 재기위함
+
             myanim.SetBool("IsWalking", false); // walking 이 true 로 안바뀌기위해 
+            if (distance <= 20f)
+            {
+                transform.LookAt(myTarget.transform);
+            }
 
             nav.SetDestination(myTarget.transform.position); // 따라가게 하기위한 코드 
-            if (myanim.GetBool("IsAttack")==true || myanim.GetBool("IsDamage") ==true ) // 공격애니메이션 이나 데미지애니메이션 둘중하나라도 재생중이라면 움직임이 멈추고
+            if (myanim.GetBool("IsAttack") == true || myanim.GetBool("IsDamage") == true) // 공격애니메이션 이나 데미지애니메이션 둘중하나라도 재생중이라면 움직임이 멈추고
             {
-                nav.isStopped=true;
+                nav.isStopped = true;
             }
             else // 아니라면 움직여라
             {
                 nav.isStopped = false;
             }
-           
 
-            float distance = Vector3.Distance(transform.position, myTarget.transform.position); // 플레이어와 몬스터사이 거리 재기위함
+
+
             if (distance <= Attackrange) // 거리가 어택사거리 보다 짧거나 같다면 
             {
                 if (myanim.GetBool("IsAttack") == false) // 공격중이아니라면 
@@ -117,6 +125,16 @@ public class Monster : MonoBehaviour
                     StartCoroutine(Attack()); // 코루틴시작 
                 }
 
+
+            }
+
+            if (distance >= 20f) // 몬스터와 캐릭터 거리 차이가 20f 가 넘으면 
+            {
+
+                myanim.SetBool("IsRunnig", false); // 애니메이션 런 false
+                nav.isStopped = true;  // 네비 스탑 
+                characterManger.fixTarget = false; // 캐릭터매니저 타겟고정 false 
+                ChangeState(State.IDLE); // idle 상태로 변경 
 
             }
 
@@ -129,7 +147,6 @@ public class Monster : MonoBehaviour
         }
     }
 
-  
     IEnumerator Attack() 
     {
         AttackPoint.SetActive(true); // 어택 콜리더 활성화 
@@ -140,7 +157,33 @@ public class Monster : MonoBehaviour
 
 
 }
-IEnumerator Roaming()
+    IEnumerator GoStartPos() // 시작위치로 돌아가는 코루틴 
+    {
+
+        myCanvas.transform.gameObject.SetActive(false); // 내 캔버스 안보이게 설정 
+        myTarget = null; // 내 타겟 null 
+        targetIndistance = null; // 콜리더 null 
+        speed = 5f;  //스피드 5 
+        myanim.SetBool("IsWalking", true); // walk 애니메이션 true 
+        while (true)
+        {
+            transform.LookAt(Startpos); // 시작포지션 바라보게 
+            float dist = Vector3.Distance(transform.position, Startpos); // 시작포지션과 몬스터 distance
+
+            this.transform.position = Vector3.MoveTowards(transform.position, Startpos, Time.deltaTime * speed); // 시작위치로이동 
+
+            if (dist <= 0.1f) // 시작 위치랑 몬스터의 거리가 0.1 f 보다 작다면 
+            {
+                myanim.SetBool("IsWalking", false);                // walk 애니메이션 false 
+                ChangeState(State.ROAMING); // 로밍으로변경 
+
+            }
+            yield return null;
+        }
+
+
+    }
+    IEnumerator Roaming()
     {
         
        
@@ -148,7 +191,9 @@ IEnumerator Roaming()
             pos.x = Random.Range(-3f, 3f); //목적지 x 값은 -3~3 사이 랜덤값
             pos.y = 0.116f;
             pos.z = Random.Range(-3f, 3f); // 목적지 z 값은 -3~3 사이 랜덤값
-          
+            
+        pos.x = this.transform.position.x-pos.x;
+        pos.z = this.transform.position.z - pos.z;
       
        
 
@@ -168,7 +213,8 @@ IEnumerator Roaming()
                 myanim.SetBool("IsWalking", true); // 다시 걷게하고 
                 pos.x = Random.Range(-3f, 3f);// 위치설정
                 pos.z = Random.Range(-3f, 3f);//위치설정 
-               
+                pos.x = this.transform.position.x - pos.x;
+                pos.z = this.transform.position.z - pos.z;
 
             }
             
@@ -186,26 +232,32 @@ IEnumerator Roaming()
         if (myState == s) return; // 지금 내 state 가 입력받은 state 와 같다면 return 
         myState = s; // 아니라면 내 state 에 입력받은 s 대입 
 
-        switch(myState)
+        switch (myState)
         {
             case State.CREATE:
                 break;
             case State.IDLE:
-                ChangeState(State.ROAMING);
+                StopAllCoroutines(); // 모든 코루틴을 멈추고 
+                StartCoroutine(GoStartPos()); // 시작위치로 돌아가는 코루틴 시작 
+
+
                 break;
             case State.ROAMING:
-                speed = 3f;
-                StartCoroutine(Roaming());
+                speed = 2f;
+
+                StopAllCoroutines(); // 모든 코루틴을 멈추고 
+                StartCoroutine(Roaming()); // 로밍 코루틴 시작 
+
                 break;
             case State.BATTLE:
-                speed = 3.5f; // 몬스터 스피드 3.5 로조정 
-                roaming = false; // while 문 안돌게 설정 
-               StopCoroutine(Roaming()); // 스탑코루틴 로밍 
-                
+                speed = 3f; // 몬스터 스피드 3 로조정 
+                StopAllCoroutines();
+
+                StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-               
+
                 myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
                 CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
@@ -213,7 +265,7 @@ IEnumerator Roaming()
                 break;
 
         }
-        
+
     }
     void StateProcess()
     {
