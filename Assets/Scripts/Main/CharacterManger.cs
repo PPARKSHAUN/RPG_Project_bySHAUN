@@ -10,14 +10,12 @@ public class CharacterManger : MonoBehaviour
     }
     public State myState = State.CREATE;
     public Transform cam;
-    public GameObject Backbow;
-    public GameObject Handbow;
-    float moveSpeed = 8.5f;
-    float rotationSpeed = 5f;
-    Rigidbody body;
+    public Stat stat; // 스탯 받아오기위해 
+    public UnitCode unitCode; // 유닛코드 설정을 위해 
+ 
+    [SerializeField]Transform characterBody;
     Animator myanim;
-    Vector3 movement;
-    public float distance = 10f;
+    float distance =15f; //자동공격 감지거리 
     public LayerMask targetmask;
     public LayerMask etcmask;
     public Collider[] targetIndistance;
@@ -32,11 +30,15 @@ public class CharacterManger : MonoBehaviour
     public Renderer[] meshs;// 플레이어 mesh 배열 
     public bool isDamage; // 무적시간 재는용 
     public bool fixTarget; //불값을 이용해 타겟고정할예정 
+     public GameObject Backbow;
+    public GameObject Handbow;
     
     void Awake()
     {
+        stat = new Stat();// 스탯 뉴 스탯 
+        stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
         myanim = GetComponent<Animator>();
-        body = GetComponent<Rigidbody>();
+        
         CanMove = true;
        
       
@@ -63,7 +65,7 @@ public class CharacterManger : MonoBehaviour
         if (myanim.GetBool("IsAttack") == false && CanMove == true)
         {
             move(h, v);
-            turn(h, v);
+        
         }
 
     }
@@ -75,7 +77,8 @@ public class CharacterManger : MonoBehaviour
             if (!isDamage) // 무적시간 이 끝났을때 
             {
 
-                float dmage = other.GetComponentInParent<Monster>().Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
+                int dmage = other.GetComponentInParent<Monster>().stat.Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
+                stat.curHp -= dmage;
                 Debug.Log("Hitplayer"); // 확인용 
                 StartCoroutine(Ondamage()); // 코루틴시작 
                
@@ -85,57 +88,54 @@ public class CharacterManger : MonoBehaviour
 
     IEnumerator Ondamage()
     {
-        isDamage = true; // 무적시간 재는용 true 라면 무적 
-       for(int i=0;i<meshs.Length;i++ ) // mesh 가 여러개있어서 배열로 받아놓고 for 문돌려준다 
+        if(stat.curHp<=0)// hp가 0보다 적다면 
         {
-            meshs[i].material.color = Color.red; //모든 mseh 를 빨간색으로변경 
+            myanim.SetTrigger("Die"); // 다이 애니메이션 실행 
+
         }
-         
-        yield return new WaitForSeconds(1.0f); // 1초후 
-        for (int i = 0; i < meshs.Length; i++)
+        else if(stat.curHp>0)
         {
-            meshs[i].material.color = Color.white; // 모든 mesh 흰색으로 변경
+            isDamage = true; // 무적시간 재는용 true 라면 무적 
+
+            for (int i = 0; i < meshs.Length; i++) // mesh 가 여러개있어서 배열로 받아놓고 for 문돌려준다 
+            {
+                meshs[i].material.color = Color.red; //모든 mseh 를 빨간색으로변경 
+            }
+
+            yield return new WaitForSeconds(1.0f); // 1초후 
+            for (int i = 0; i < meshs.Length; i++)
+            {
+                meshs[i].material.color = Color.white; // 모든 mesh 흰색으로 변경
+            }
+            isDamage = false; // 무적시간 재는용 false 
+
         }
-        isDamage = false; // 무적시간 재는용 false 
+       
     }
-   
+
 
     void move(float h, float v)
     {
-       
-        
-        movement.Set(h, 0, v);
-       
-       if(h ==0 && v == 0 )
-        {
-            myanim.SetBool("IsMoving", false);
-        }
-       else if( myanim.GetBool("EqipBow") != true)
-        {
-            myanim.SetBool("IsMoving", true);
-        }
+        Vector2 Move = new Vector2(h, v);
         if (myanim.GetBool("EqipBow") != true)
         {
-          
-            movement = movement.normalized * moveSpeed * Time.deltaTime;
+            bool IsMoving = Move.magnitude != 0;
+            myanim.SetBool("IsMoving", IsMoving);
+            if (IsMoving)
+            {
+                Vector3 LookForwad = new Vector3(cam.forward.x, 0f, cam.forward.z).normalized;
+                Vector3 lookRight = new Vector3(cam.right.x, 0f, cam.right.z).normalized;
+                Vector3 moveDir = LookForwad * Move.y + lookRight * Move.x;
 
-            body.MovePosition(transform.position + movement);
+                characterBody.forward = moveDir;
+                transform.position += moveDir * (Time.deltaTime * stat.moveSpeed);
+            }
+
         }
-            
+
+
     }
 
-    void turn(float h, float v)
-    {
-        if (h == 0 && v == 0 )
-            return;
-        else if(myanim.GetBool("EqipBow") != true)
-        {
-            Quaternion Rotation = Quaternion.LookRotation(movement);
-            body.rotation = Quaternion.Slerp(body.rotation, Rotation, rotationSpeed * Time.deltaTime);
-        }
-        
-    }
- 
     public IEnumerator SetTartget()
     {
       
@@ -198,6 +198,16 @@ public class CharacterManger : MonoBehaviour
     {
         
     }
+    IEnumerator AttackMove()
+    {
+        while(true)
+        {
+            this.transform.position = Vector3.MoveTowards(this.transform.position, myTarget.transform.position, Time.deltaTime * stat.moveSpeed); // 이동
+            yield return null;
+        }
+       
+      
+    }
     public void OnclickAttackButton()
     {
         if(myanim.GetBool("IsAttack")==false)//파라메터 IsAttack false 일때 실행
@@ -210,8 +220,22 @@ public class CharacterManger : MonoBehaviour
             if (myTarget != null) //배틀모드일때 타겟이 null이 아니라면 
             {
                 CanMove = false; // 움직임제한
-                myanim.SetTrigger("Attack"); // 어택 트리거 활성화
-                transform.LookAt(myTarget.transform); // 타겟바라보게 
+                if(myTarget !=null) // 내타겟이 null 이 아니라면 
+                {
+                    float dist = Vector3.Distance(this.transform.position,myTarget.transform.position);  // 거리값을구해서
+                    if(dist>stat.AttackRange) // 거리값이 공격사거리보다 크다면 
+                    {
+                       StartCoroutine(AttackMove());
+                        if(dist<=stat.AttackRange) // 거리값이 공격사거리 보다 작거나 같다면 
+                        {
+                            StopCoroutine(AttackMove());
+                            myanim.SetTrigger("Attack"); // 어택 트리거 활성화 
+                            transform.LookAt(myTarget.transform); // 타겟바라보게 
+                        }
+
+                    }
+                }
+               
             }
            
 

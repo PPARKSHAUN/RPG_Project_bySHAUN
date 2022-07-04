@@ -9,26 +9,25 @@ public class Monster : MonoBehaviour
     {
         CREATE, IDLE, BATTLE, DIE,ROAMING
     }
-    public float speed = 3f;
     public State myState = State.CREATE;
-    public int maxHp;
-    public int curHp;
-    public int Damage;
+    public UnitCode unitCode; // 유닛코드 설정을위해 선언 
+    public Stat stat; // 스탯을받아오기위해 
     public Renderer myrenderer;
     public Animator myanim;
     public LayerMask targetmask;
     public Collider[] targetIndistance;
     public GameObject myTarget;
-    public float Attackrange = 3f;
     NavMeshAgent nav;
-    public bool roaming = true;
-    [SerializeField] Vector3 pos;
+    Vector3 pos;
     public GameObject AttackPoint;
     CharacterManger characterManger;
     public Canvas myCanvas;
     Vector3 Startpos;
+   
     private void Awake()
     {
+        stat = new Stat();// 스탯 뉴 스탯 
+        stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
         ChangeState(State.ROAMING);
         nav = GetComponent<NavMeshAgent>();
          characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
@@ -39,8 +38,8 @@ public class Monster : MonoBehaviour
         if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Arrow")))//엔터한 트리거에 레이어 이름이 Arrow 일때 
         {
            
-            Arrow arrow = other.GetComponent<Arrow>(); // Arrow 를 GetComponet 하고 
-            curHp -= arrow.Damage;// 현재 hp 에서 arrow 데미지를 빼주고 
+            
+            stat.curHp -= characterManger.stat.Damage;// 현재 hp 에서 캐릭터 데미지를 빼주고 
             StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
             ChangeState(State.BATTLE); // 맞게되면 Battle 상태로 변경 
             myanim.SetTrigger("Damage");// 맞게되면 내 애니메이션 데미지 실행 
@@ -60,13 +59,13 @@ public class Monster : MonoBehaviour
         }
         myrenderer.material.color= Color.red; // 몬스터 색깔 빨강으로 변경 
         yield return new WaitForSeconds(0.2f); // 0.2 초 기다린뒤 
-        if(curHp>0)// 현재 hp 가 0보다크다면 
+        if(stat.curHp>0)// 현재 hp 가 0보다크다면 
         {
             myrenderer.material.color = new Color(1, 1, 1); //원래색깔로 
            
             characterManger.fixTarget = true; //만약 맞았는데 현재 hp 가 0보다크면  타겟 고정을 위해 스탑 코루틴 켜줄 bool 조정 
         }
-        if (curHp <= 0)//현재 hp 가 0보다 작다면
+        if (stat.curHp <= 0)//현재 hp 가 0보다 작다면
         {
             ChangeState(State.DIE);
         }
@@ -100,7 +99,7 @@ public class Monster : MonoBehaviour
             float distance = Vector3.Distance(transform.position, myTarget.transform.position); // 플레이어와 몬스터사이 거리 재기위함
 
             myanim.SetBool("IsWalking", false); // walking 이 true 로 안바뀌기위해 
-            if (distance <= 20f)
+            if (distance <= 20f && stat.curHp >0)
             {
                 transform.LookAt(myTarget.transform);
             }
@@ -117,7 +116,7 @@ public class Monster : MonoBehaviour
 
 
 
-            if (distance <= Attackrange) // 거리가 어택사거리 보다 짧거나 같다면 
+            if (distance <= stat.AttackRange) // 거리가 어택사거리 보다 짧거나 같다면 
             {
                 if (myanim.GetBool("IsAttack") == false) // 공격중이아니라면 
                 {
@@ -136,6 +135,13 @@ public class Monster : MonoBehaviour
                 characterManger.fixTarget = false; // 캐릭터매니저 타겟고정 false 
                 ChangeState(State.IDLE); // idle 상태로 변경 
 
+            }
+
+            if(stat.curHp<=0)
+            {
+               
+               
+                nav.isStopped = true;
             }
 
 
@@ -163,18 +169,19 @@ public class Monster : MonoBehaviour
         myCanvas.transform.gameObject.SetActive(false); // 내 캔버스 안보이게 설정 
         myTarget = null; // 내 타겟 null 
         targetIndistance = null; // 콜리더 null 
-        speed = 5f;  //스피드 5 
+      
         myanim.SetBool("IsWalking", true); // walk 애니메이션 true 
         while (true)
         {
             transform.LookAt(Startpos); // 시작포지션 바라보게 
             float dist = Vector3.Distance(transform.position, Startpos); // 시작포지션과 몬스터 distance
 
-            this.transform.position = Vector3.MoveTowards(transform.position, Startpos, Time.deltaTime * speed); // 시작위치로이동 
+            this.transform.position = Vector3.MoveTowards(transform.position, Startpos, Time.deltaTime * stat.moveSpeed); // 시작위치로이동 
 
             if (dist <= 0.1f) // 시작 위치랑 몬스터의 거리가 0.1 f 보다 작다면 
             {
                 myanim.SetBool("IsWalking", false);                // walk 애니메이션 false 
+              
                 ChangeState(State.ROAMING); // 로밍으로변경 
 
             }
@@ -198,13 +205,13 @@ public class Monster : MonoBehaviour
        
 
         myanim.SetBool("IsWalking", true); // 처음에 움직이니까 트루 
-        while (roaming) 
+        while (true) 
         {
            
 
             var dir = (pos - this.transform.position).normalized; // pos 포지션 - 몬스터포지션 normalized 한후 
             this.transform.LookAt(pos); // 몬스터가 이동할때 이동하는곳 바라보게하기위해 
-            this.transform.position += dir * speed * Time.deltaTime; // 현재포지션에 normalize * 설정한 speed * Time.deltaTime 더해주기 
+            this.transform.position += dir * stat.moveSpeed * Time.deltaTime; // 현재포지션에 normalize * 설정한 speed * Time.deltaTime 더해주기 
             float distance = Vector3.Distance(transform.position, pos); // 몬스터와 목적지 사이 거리 구하기 
             if (distance <=0.1f) // 0.1 이하라면 
             {
@@ -237,27 +244,30 @@ public class Monster : MonoBehaviour
             case State.CREATE:
                 break;
             case State.IDLE:
+                
                 StopAllCoroutines(); // 모든 코루틴을 멈추고 
                 StartCoroutine(GoStartPos()); // 시작위치로 돌아가는 코루틴 시작 
 
 
                 break;
             case State.ROAMING:
-                speed = 2f;
+              
 
                 StopAllCoroutines(); // 모든 코루틴을 멈추고 
                 StartCoroutine(Roaming()); // 로밍 코루틴 시작 
 
                 break;
             case State.BATTLE:
-                speed = 3f; // 몬스터 스피드 3 로조정 
+               
                 StopAllCoroutines();
 
                 StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-
+                StopCoroutine(Battle());
+                myanim.SetBool("IsRunnig", false);
+              
                 myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
                 CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
