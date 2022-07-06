@@ -5,6 +5,9 @@ TextureImporter:
   - first:
       213: 4759617112136810761
     second: ui_btn_02_0
+  - first:
+      213: 2195447672800528844
+    second: NONE
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -114,7 +117,7 @@ TextureImporter:
         width: 47
         height: 40
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -122,6 +125,27 @@ TextureImporter:
       bones: []
       spriteID: 90109c3cb8e8d0240800000000000000
       internalID: 4759617112136810761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NONE
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 191
+        width: 52
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc9cb34c60cc77e10800000000000000
+      internalID: 2195447672800528844
       vertices: []
       indices: 
       edges: []
