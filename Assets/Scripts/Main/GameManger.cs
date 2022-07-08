@@ -22,12 +22,15 @@ public class Item
 public class GameManger : MonoBehaviour
 {
     public TextAsset ItemDatabase;// 아이템 데이터베이스를 연결해주기위해 선언 
-    public List<Item> Alltem, MyItemList, CurItemList; //아이템을 리스트 해주기위해
+    public List<Item> Alltem, MyItemList, CurItemList,UsingItemList; //아이템을 리스트 해주기위해
     public string curTab = "All";//처음 탭 타입 
     public Image[] SelectImg; // 아이템 셀렉 이미지 켜주기위해 배열로받고
-    public GameObject[] Slot;//슬롯을 넣기위해 
-    public Image[] ItemImage; // 슬롯 아이템 이미지 연결 
+    public GameObject[] Slot, Eqipslot,off,on;//슬롯을 넣기위해 
+    public Image[] ItemImage,EqipItemImage; // 슬롯 아이템 이미지 연결 
     public Sprite[] ItemSprite; // 아이템 데이터 베이스순서에 맞게 스프라이트 연결
+    public Sprite none;
+    public Transform player;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +43,32 @@ public class GameManger : MonoBehaviour
 
         Load();
     }
-
+    public void InventoryButtonClick()
+    {
+        bool click = true;
+       for(int i=0;i<off.Length;i++)
+        {
+            off[i].SetActive(!click);
+        }
+       for(int i=0;i<on.Length;i++)
+        {
+            on[i].SetActive(click);
+        }
+       on[0].transform.position=player.position+new Vector3(0,1,2);
+       
+    }
+    public void exitbutton()
+    {
+        bool click = true;
+        for (int i = 0; i < off.Length; i++)
+        {
+            off[i].SetActive(click);
+        }
+        for (int i = 0; i < on.Length; i++)
+        {
+            on[i].SetActive(!click);
+        }
+    }
 
     public void SlotClick(int slotNum)//슬롯클릭때
     {
@@ -131,10 +159,45 @@ public class GameManger : MonoBehaviour
     }
     public void TabClick(string tabname)// 탭클릭시 온클릭이벤트 
     {
+        Item UsingItem;
         curTab = tabname; // 현재탭은 탭네임 받기 
         if(tabname != "All") // 만약 탭타입이 all 이 아니면 
+
         {
+            
             CurItemList = MyItemList.FindAll(x => x.ItemType == tabname); // 내 아이템 리스트에서 아이템 타입과 탭네임이 같은 것을 찾아라 
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Helmet");
+            if (UsingItem != null)
+                EqipItemImage[0].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[0].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Armor");
+            if (UsingItem != null)
+                EqipItemImage[1].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[1].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Glove");
+            if (UsingItem != null)
+                EqipItemImage[2].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[2].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Shose");
+            if (UsingItem != null)
+                EqipItemImage[3].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[3].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Wepon");
+            if (UsingItem != null)
+                EqipItemImage[4].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[4].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Ring");
+            if (UsingItem != null)
+                EqipItemImage[5].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[5].sprite = none;
+
+
             for (int i = 0; i < Slot.Length; i++)// 슬롯갯수만큼 돌려주고 
             {
                 bool isExistSlot = i < CurItemList.Count;
@@ -163,8 +226,41 @@ public class GameManger : MonoBehaviour
         }
         else
         {
+            CurItemList = MyItemList;
 
-            CurItemList = MyItemList; // all 이면 모두 넣어라 
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Helmet");
+            if (UsingItem != null)
+                EqipItemImage[0].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[0].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Armor");
+            if (UsingItem != null)
+                EqipItemImage[1].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[1].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Glove");
+            if (UsingItem != null)
+                EqipItemImage[2].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[2].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Shose");
+            if (UsingItem != null)
+                EqipItemImage[3].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[3].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Wepon");
+            if (UsingItem != null)
+                EqipItemImage[4].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[4].sprite = none;
+            UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Ring");
+            if (UsingItem != null)
+                EqipItemImage[5].sprite = ItemSprite[Alltem.FindIndex(x => x.Name == UsingItem.Name)];
+            else
+                EqipItemImage[5].sprite = none;
+
+
+
             for (int i = 0; i < Slot.Length; i++)
             {
                 bool isExistSlot = i < CurItemList.Count;
