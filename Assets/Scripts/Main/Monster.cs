@@ -35,7 +35,7 @@ public class Monster : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)//트리거엔터가 발동될때 
     {
-        if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Arrow")))//엔터한 트리거에 레이어 이름이 Arrow 일때 
+        if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Arrow")) && myState != State.DIE)//엔터한 트리거에 레이어 이름이 Arrow 일때 
         {
            
             
@@ -233,6 +233,14 @@ public class Monster : MonoBehaviour
     
 
     }
+    IEnumerator DropItem()
+    {
+        while(true)
+        {
+
+            yield return null;
+        }
+    }
     void ChangeState(State s) // State 변경 
     {
 
@@ -265,13 +273,13 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-                StopCoroutine(Battle());
+                StopAllCoroutines();
                 myanim.SetBool("IsRunnig", false);
-              
-                myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
-                StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
                 CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
                 characterManger.fixTarget = false;// 만약 맞았는데 현재 hp 가 0보다작거나 같다면 타겟 세팅을 위해 스타트 코루틴 켜줄 bool 조정 
+                myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
+                StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
+               
                 break;
 
         }

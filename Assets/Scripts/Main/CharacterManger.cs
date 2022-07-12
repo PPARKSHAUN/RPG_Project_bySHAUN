@@ -32,6 +32,7 @@ public class CharacterManger : MonoBehaviour
     public bool fixTarget; //불값을 이용해 타겟고정할예정 
      public GameObject Backbow;
     public GameObject Handbow;
+    public GameObject inventory;
     
     void Awake()
     {
@@ -62,12 +63,18 @@ public class CharacterManger : MonoBehaviour
             }
         }
         
-        if (myanim.GetBool("IsAttack") == false && CanMove == true)
+        if (myanim.GetBool("IsAttack") == false && CanMove == true && inventory.activeSelf==false)
         {
             move(h, v);
         
         }
-
+        if(inventory.activeSelf==true)
+        {
+            
+            myanim.SetBool("IsMoving", false);
+            StopAllCoroutines();
+        }
+       
     }
 
     private void OnTriggerEnter(Collider other)
@@ -198,16 +205,7 @@ public class CharacterManger : MonoBehaviour
     {
         
     }
-    IEnumerator AttackMove()
-    {
-        while(true)
-        {
-            this.transform.position = Vector3.MoveTowards(this.transform.position, myTarget.transform.position, Time.deltaTime * stat.moveSpeed); // 이동
-            yield return null;
-        }
-       
-      
-    }
+   
     public void OnclickAttackButton()
     {
         if(myanim.GetBool("IsAttack")==false)//파라메터 IsAttack false 일때 실행
@@ -223,17 +221,11 @@ public class CharacterManger : MonoBehaviour
                 if(myTarget !=null) // 내타겟이 null 이 아니라면 
                 {
                     float dist = Vector3.Distance(this.transform.position,myTarget.transform.position);  // 거리값을구해서
-                    if(dist>stat.AttackRange) // 거리값이 공격사거리보다 크다면 
-                    {
-                       StartCoroutine(AttackMove());
-                        if(dist<=stat.AttackRange) // 거리값이 공격사거리 보다 작거나 같다면 
-                        {
-                            StopCoroutine(AttackMove());
-                            myanim.SetTrigger("Attack"); // 어택 트리거 활성화 
-                            transform.LookAt(myTarget.transform); // 타겟바라보게 
-                        }
+                    myanim.SetTrigger("Attack"); // 어택 트리거 활성화 
+                    transform.LookAt(myTarget.transform); // 타겟바라보게 
 
-                    }
+
+
                 }
                
             }

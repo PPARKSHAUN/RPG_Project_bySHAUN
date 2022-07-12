@@ -21,6 +21,7 @@ public class Item
 }
 public class GameManger : MonoBehaviour
 {
+    private static GameManger instance;
     public TextAsset ItemDatabase;// 아이템 데이터베이스를 연결해주기위해 선언 
     public List<Item> Alltem, MyItemList, CurItemList,UsingItemList; //아이템을 리스트 해주기위해
     public string curTab = "All";//처음 탭 타입 
@@ -30,10 +31,23 @@ public class GameManger : MonoBehaviour
     public Sprite[] ItemSprite; // 아이템 데이터 베이스순서에 맞게 스프라이트 연결
     public Sprite none;
     public Transform player;
+    public GameObject ExplainPanel;//팝업창 패널 
+    IEnumerator pointercoroutine; //코루틴 스타트 스탑 해주기위해 선언 
     
+
     // Start is called before the first frame update
+    private void Update()
+    {
+        ExplainPanel.transform.position = Input.mousePosition ;
+
+    }
     void Start()
     {
+        if(instance==null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         string[] line = ItemDatabase.text.Substring(0, ItemDatabase.text.Length - 1).Split('\n'); // 아이템 데이터 베이스가 저장되면 마지막줄은 엔터라서 엔터빼고 받기위해서  
         for (int i = 0; i < line.Length; i++)
         {
@@ -45,6 +59,7 @@ public class GameManger : MonoBehaviour
     }
     public void InventoryButtonClick()
     {
+        
         bool click = true;
        for(int i=0;i<off.Length;i++)
         {
@@ -314,6 +329,66 @@ public class GameManger : MonoBehaviour
                 break;
 
         }
+    }
+    public void GetItem(Item getitem) // 아이템 얻을 경우 얻는 아이템 받아오고 
+    {
+        if(getitem.ItemType != "Eqipment" && getitem.ItemType != "Accessory") // 아이템타입이 장비,액세서리가 아니라면 
+        {
+            Item curitem = MyItemList.Find(x=>x.Name==getitem.Name); // 현재아이템은 내 아이템 리스트중 getitem 과 이름이 같은걸 찾고 
+            if(curitem != null) // null 이 아니면 같은걸 찾아진거고 
+            {
+                curitem.Number = (int.Parse(getitem.Number)+int.Parse(curitem.Number)).ToString(); // 현재아이템 갯수는 전달받은아이템정보 + 현재아이템 
+            }
+            else
+            {
+                //여기에는 아닌경우 myitemlist에 add 해줘야하는코드 작성
+            }
+        }
+        else // 장비인경우 마이아이템 리스트 추가해줘야하는 코드 추가 
+        {
+
+        }
+        Save();
+    }
+    public void RemoveItem(Item useItem)
+    {
+        if (useItem.ItemType != "Eqipment" && useItem.ItemType != "Accessory")//아이템타입 장비,액세서리 아니면 
+        {
+            Item curitem = MyItemList.Find(x=>x.Name == useItem.Name);  //현재아이템 내아이템 리스트중 useitem 과 같은거를찾고 
+            if(curitem!=null)//아이템이 null 이 아니면 이미 같은종류 아이템이 있는거라서 
+            {
+                int curNumber = int.Parse(curitem.Number) - int.Parse(useItem.Number); // 마이아이템 갯수  - 쓴아이템갯수 
+                if (curNumber <= 0) MyItemList.Remove(curitem);// 0보다 작거나 같다면 remove 해준다 
+                else curitem.Number = curNumber.ToString(); // 0보다 크다면 남아있는 아이템갯수 표시
+            }
+        }
+        else // 장비인경우 추가 
+        {
+
+        }
+    }
+    public void PointerEnter(int slotNum)//포인터가 슬롯에 들어왓을때 
+    {
+        pointercoroutine =Delay(slotNum);// 위에 선언한 코루틴에 delay코루틴 넣어주고 
+        StartCoroutine(pointercoroutine);//스타트 코루틴 
+        ExplainPanel.GetComponentInChildren<Text>().text = CurItemList[slotNum].Name;//첫번째 텍스트 찾아서 curitelist 슬롯넘버랑 같은 이름을 가져오고 
+        ExplainPanel.transform.GetChild(2).GetComponent<Image>().sprite = Slot[slotNum].transform.GetChild(1).GetComponent<Image>().sprite; // 3번째에있는 자식 이미지 가져와서 슬롯에 2번째에 있는 이미지대입
+        ExplainPanel.transform.GetChild(3).GetComponent<Text>().text = CurItemList[slotNum].Explain;// 4번째에있는 자식 text 가져와서 explain 넣음
+    }
+
+
+    IEnumerator Delay(int slotNum)// 딜레이 0.5 초 주기위해 
+    {
+        yield return new WaitForSeconds(0.3f);
+        ExplainPanel.SetActive(true);// 설명판넬 true
+      
+
+    }
+    public void PointerExit(int slotNum)//포인터가 나가면 
+    {
+        StopCoroutine(pointercoroutine);// 스탑코루틴 
+        ExplainPanel.SetActive(false);//설명판넬 false
+      
     }
 
     void Save()
