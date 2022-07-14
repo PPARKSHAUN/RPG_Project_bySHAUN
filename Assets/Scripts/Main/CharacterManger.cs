@@ -2,8 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
+using Newtonsoft.Json;
+using System.IO;
+
 public class CharacterManger : MonoBehaviour
 {
+    public static CharacterManger instance;
     public enum State
     {
         CREATE, IDLE, BATTLE,DIE 
@@ -33,21 +38,64 @@ public class CharacterManger : MonoBehaviour
      public GameObject Backbow;
     public GameObject Handbow;
     public GameObject inventory;
-    
-    void Awake()
+    public GameObject MyNickname;
+    public Image Myhpbar; //캐릭터 위 hp바
+    public Image Mympbar;//캐릭터 위 mp바
+    public Image hpbar;//상단 hp바
+    public Image mpbar; //상단 mp바
+    public Text hp, mp;//상단 hp mp 표시 텍스트
+    private void Start()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
         stat = new Stat();// 스탯 뉴 스탯 
-        stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
-        myanim = GetComponent<Animator>();
         
+        
+        stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
+        Load();
+     
+        
+        myanim = GetComponent<Animator>();
+        Myhpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
+        hpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
+        Mympbar.fillAmount = (float)stat.curMp / (float)stat.maxMp;
+        mpbar.fillAmount = (float)stat.curMp / (float)stat.maxMp;
+        hp.text = stat.curHp + "/" + stat.maxHp.ToString();
+        mp.text = stat.curMp + "/" + stat.maxMp.ToString();
         CanMove = true;
-       
-      
+        
     }
+    private void OnApplicationQuit()//게임 종료시 스탯 save
+    {
+        Save(); 
+    }
+    void Save()
+    {
+        string jdata = JsonConvert.SerializeObject(stat); // jdata 에 내 스탯 넣어주기
+        File.WriteAllText(Application.dataPath + "/Resources/Mystat.txt", jdata); // 이파일을 Resources 폴더에 Mystat jdata로 저장해준다 
 
+    }
+    void Load()
+    {
+        string jdata = File.ReadAllText(Application.dataPath + "/Resources/Mystat.txt"); // 내 스탯을 읽어오고 
+        stat = JsonConvert.DeserializeObject<Stat>(jdata); // Convert하여 stat에 넣어준다 
+
+    }
+    public void myCondition()
+    {
+        Myhpbar.fillAmount = Mathf.Lerp(Myhpbar.fillAmount, (float)stat.curHp / (float)stat.maxHp, Time.deltaTime * 10f);//내 hp바 계산
+        hpbar.fillAmount = Mathf.Lerp(Myhpbar.fillAmount, (float)stat.curHp / (float)stat.maxHp, Time.deltaTime * 10f);//상단 hp바 계산
+        Mympbar.fillAmount = Mathf.Lerp(Mympbar.fillAmount, (float)stat.curMp / (float)stat.maxMp, Time.deltaTime * 10f);//내 mp바 계산
+        mpbar.fillAmount = Mathf.Lerp(Mympbar.fillAmount, (float)stat.curMp / (float)stat.maxMp, Time.deltaTime * 10f);//상단 mp바 계산
+        hp.text = stat.curHp + "/" + stat.maxHp.ToString();//상단 hp text표현
+        mp.text = stat.curMp + "/" + stat.maxMp.ToString();//상단 mp text표현 
+    }
     private void Update()
     {
-       
+        myCondition();
+        MyNickname.transform.position = Camera.main.WorldToScreenPoint(this.transform.position+new Vector3(0,2.7f,0));
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -109,7 +157,7 @@ public class CharacterManger : MonoBehaviour
                 meshs[i].material.color = Color.red; //모든 mseh 를 빨간색으로변경 
             }
 
-            yield return new WaitForSeconds(1.0f); // 1초후 
+            yield return new WaitForSeconds(0.3f); // 0.3초후 
             for (int i = 0; i < meshs.Length; i++)
             {
                 meshs[i].material.color = Color.white; // 모든 mesh 흰색으로 변경
@@ -183,12 +231,17 @@ public class CharacterManger : MonoBehaviour
             targettingimg = myTarget.transform.Find("Canvas").transform.gameObject;// 나의 타겟에 캔버스를 찾아서 
             targettingimg.SetActive(true);// 캔버스를 보이게해준다.
         }
-        else if(Targets.Count==0 && targettingimg != null)//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
+        else if(Targets.Count==0 && targettingimg != null )//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
         {
             targettingimg.SetActive(false);
             myTarget = null;
         }
 
+        if (myTarget.GetComponent<Monster>().myState==Monster.State.DIE)
+        {
+            targettingimg.SetActive(false);
+            myTarget = null;
+        }
       yield return null;    
     }
 
@@ -201,10 +254,11 @@ public class CharacterManger : MonoBehaviour
         GameObject go = Instantiate(arrow, arrowpoint.transform.position, arrowpoint.transform.rotation);
 
     }
-    public void ArrowRecoil()
+    public void ArrowReocil()
     {
-        
+
     }
+   
    
     public void OnclickAttackButton()
     {

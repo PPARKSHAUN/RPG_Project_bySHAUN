@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class Monster : MonoBehaviour
 {
+    public static Monster instance;
     public enum State
     {
         CREATE, IDLE, BATTLE, DIE,ROAMING
@@ -23,9 +24,13 @@ public class Monster : MonoBehaviour
     CharacterManger characterManger;
     public Canvas myCanvas;
     Vector3 Startpos;
-   
     private void Awake()
     {
+        if(instance == null)
+        {
+            instance = this;
+        }
+        
         stat = new Stat();// 스탯 뉴 스탯 
         stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
         ChangeState(State.ROAMING);
@@ -39,7 +44,7 @@ public class Monster : MonoBehaviour
         {
            
             
-            stat.curHp -= characterManger.stat.Damage;// 현재 hp 에서 캐릭터 데미지를 빼주고 
+            stat.curHp -=Random.Range((int)(characterManger.stat.Damage*0.9), (int)(characterManger.stat.Damage * 1.2));// 현재 hp 에서 캐릭터 데미지를 빼주고 
             StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
             ChangeState(State.BATTLE); // 맞게되면 Battle 상태로 변경 
             myanim.SetTrigger("Damage");// 맞게되면 내 애니메이션 데미지 실행 
@@ -73,7 +78,8 @@ public class Monster : MonoBehaviour
     }
     IEnumerator Disapearing()//Disapearing 코루틴
     {
-        
+        myCanvas.transform.gameObject.SetActive(false);
+
         myrenderer.material.color = Color.grey;// 몬스터 색깔 회색으로 변경
         yield return new WaitForSeconds(1.0f); // 1초뒤
        
@@ -233,14 +239,7 @@ public class Monster : MonoBehaviour
     
 
     }
-    IEnumerator DropItem()
-    {
-        while(true)
-        {
-
-            yield return null;
-        }
-    }
+   
     void ChangeState(State s) // State 변경 
     {
 
@@ -273,18 +272,23 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
+                myCanvas.transform.gameObject.SetActive(false);
                 StopAllCoroutines();
+                StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
+                GameManger.instance.ItemDrop();//아이템드랍
+              
                 myanim.SetBool("IsRunnig", false);
                 CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
                 characterManger.fixTarget = false;// 만약 맞았는데 현재 hp 가 0보다작거나 같다면 타겟 세팅을 위해 스타트 코루틴 켜줄 bool 조정 
                 myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
-                StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
+                
                
                 break;
 
         }
 
     }
+   
     void StateProcess()
     {
         switch (myState)

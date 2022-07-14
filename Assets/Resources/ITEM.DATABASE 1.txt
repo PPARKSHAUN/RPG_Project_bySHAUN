@@ -1,8 +1,8 @@
-Eqipment	Weapon	초보자용 활	초보자용 활이다	1	FALSE
-Eqipment	Helmet	초보자용 헬멧	초보자용 헬멧이다	1	FALSE
-Eqipment	Armor	초보자용 자켓	초보자용 자켓이다	1	FALSE
-Eqipment	Glove	초보자용 장갑	초보자용 장갑이다	1	FALSE
-Eqipment	Shose	초보자용 신발	초보자용 신발이다	1	FALSE
-Accessory	Ring	허름한 반지	허름한 반지다	1	FALSE
-Potion	HP	초보자용 HP회복 포션	HP 50 회복 포션	1	
-Potion	MP	초보자용 MP회복 포션	MP 20 회복 포션	1	
+Eqipment	Weapon	초보자용 활	초보자용활이다	1	FALSE 10
+Eqipment	Helmet	초보자용 헬멧	초보자용헬멧이다	1	FALSE 30
+Eqipment	Armor	초보자용 자켓	초보자용자켓이다	1	FALSE 50
+Eqipment	Glove	초보자용 장갑	초보자용장갑이다	1	FALSE 15
+Eqipment	Shose	초보자용 신발	초보자용신발이다	1	FALSE 15
+Accessory	Ring	허름한 반지	허름한 반지다	1	FALSE 30
+Potion	HP	초보자용 HP회복 포션	HP 50 회복 포션	1 50
+Potion	MP	초보자용 MP회복 포션	MP 20 회복 포션	1 20

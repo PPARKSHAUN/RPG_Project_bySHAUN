@@ -1,0 +1,8 @@
+Eqipment	Wepon	초보자용 활	초보자용 활 공격력+15	1	FALSE	15
+Eqipment	Helmet	초보자용 헬멧	초보자용 헬멧 HP+30	1	FALSE	30
+Eqipment	Armor	초보자용 자켓	초보자용 자켓 HP+50	1	FALSE	50
+Eqipment	Glove	초보자용 장갑	초보자용 장갑 HP+15	1	FALSE	15
+Eqipment	Shose	초보자용 신발	초보자용 신발 HP+15	1	FALSE	15
+Accessory	Ring	녹슨 반지	녹슨 반지 MP+30	1	FALSE	30
+Potion	HP	초보자용 HP회복 포션	HP 50 회복 포션	1	FALSE	50
+Potion	MP	초보자용 MP회복 포션	MP 20 회복 포션	1	FALSE	20

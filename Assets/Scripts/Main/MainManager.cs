@@ -13,7 +13,7 @@ public class MainManager : MonoBehaviour
     public Image playersimbol;
     public Sprite[] Icon;
     RectTransform rectTransform;
-    public Text Uiclass;
+    //public Text Uiclass;
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -29,7 +29,7 @@ public class MainManager : MonoBehaviour
         {
             myclass = bro.Rows()[i]["MyClass"]["S"].ToString();
             // Debug.Log(myclass);
-            Uiclass.text = "("+myclass+")";
+            //Uiclass.text = "("+myclass+")";
         }
         rectTransform = (RectTransform)playersimbol.transform;
     }
@@ -49,7 +49,7 @@ public class MainManager : MonoBehaviour
             case "Archer":
                 Debug.Log("CreateArcher");
                 GameObject Archer = Instantiate(Resources.Load("Prefabs/Archer") as GameObject,StartPosition.position,StartPosition.rotation);
-                rectTransform.sizeDelta=new Vector2(100,100);
+                rectTransform.sizeDelta=new Vector2(70,70);
                 playersimbol.sprite = Icon[3];
 
 
