@@ -6,13 +6,14 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
-   
+
     public static MainManager instance;
     public string myclass;
     public Transform StartPosition;
     public Image playersimbol;
     public Sprite[] Icon;
     RectTransform rectTransform;
+    public GameObject[] rendercharacter;
     //public Text Uiclass;
     private void Awake()
     {
@@ -35,7 +36,30 @@ public class MainManager : MonoBehaviour
     }
 
 
-
+    public void RenderCharacter()
+    {
+        var bro = Backend.GameData.GetMyData("Character", new Where(), 10);
+        for (int i = 0; i < bro.Rows().Count; ++i)
+        {
+            myclass = bro.Rows()[i]["MyClass"]["S"].ToString();
+            // Debug.Log(myclass);
+        }
+        switch(myclass)
+        {
+            case "Archer":
+                rendercharacter[0].SetActive(true);
+                break;
+            case "Paladin":
+                rendercharacter[1].SetActive(true);
+                break;
+            case "Warrior":
+                rendercharacter[2].SetActive(true);
+                break;
+            case "Fighter":
+                rendercharacter[3].SetActive(true);
+                break;
+        }
+    }
     public void CreateCharacter( )
     {
         var bro = Backend.GameData.GetMyData("Character", new Where(), 10);

@@ -43,8 +43,9 @@ public class Monster : MonoBehaviour
         if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Arrow")) && myState != State.DIE)//엔터한 트리거에 레이어 이름이 Arrow 일때 
         {
            
-            
-            stat.curHp -=Random.Range((int)(characterManger.stat.Damage*0.9), (int)(characterManger.stat.Damage * 1.2));// 현재 hp 에서 캐릭터 데미지를 빼주고 
+            int playerDamage= Random.Range((int)(characterManger.stat.Damage * 1), (int)(characterManger.stat.Damage * 1.2));
+            stat.curHp -= playerDamage;// 현재 hp 에서 캐릭터 데미지를 빼주고 
+            TargettingImg.instance.Damaging(playerDamage);//Damaigng 함수 호출 (코루틴시작함수)
             StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
             ChangeState(State.BATTLE); // 맞게되면 Battle 상태로 변경 
             myanim.SetTrigger("Damage");// 맞게되면 내 애니메이션 데미지 실행 
@@ -74,7 +75,7 @@ public class Monster : MonoBehaviour
         {
             ChangeState(State.DIE);
         }
-
+      
     }
     IEnumerator Disapearing()//Disapearing 코루틴
     {
