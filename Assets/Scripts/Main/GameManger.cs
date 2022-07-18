@@ -26,10 +26,10 @@ public class GameManger : MonoBehaviour
 {
     public static GameManger instance;
     public TextAsset ItemDatabase;// 아이템 데이터베이스를 연결해주기위해 선언 
-    public List<Item> Alltem, MyItemList, CurItemList,UsingItemList,DropTabl; //아이템을 리스트 해주기위해
+    public List<Item> Alltem, MyItemList, CurItemList,UsingItemList,DropTabl,QuickSlotItem; //아이템을 리스트 해주기위해
     public string curTab = "All";//처음 탭 타입 
     public Image[] SelectImg; // 아이템 셀렉 이미지 켜주기위해 배열로받고
-    public GameObject[] Slot, Eqipslot,off,on;//슬롯을 넣기위해 
+    public GameObject[] Slot, Eqipslot,off,on,InvenQuickSlot;//슬롯을 넣기위해 
     public Image[] ItemImage,EqipItemImage; // 슬롯 아이템 이미지 연결 
     public Sprite[] ItemSprite; // 아이템 데이터 베이스순서에 맞게 스프라이트 연결
     public Sprite none;
@@ -38,6 +38,8 @@ public class GameManger : MonoBehaviour
     IEnumerator pointercoroutine; //코루틴 스타트 스탑 해주기위해 선언 
     public GameObject DropPanel;
     public Animator dropanim;
+   
+    Item CurItem;
     // Start is called before the first frame update
     private void Update()
     {
@@ -47,20 +49,17 @@ public class GameManger : MonoBehaviour
     
     void Awake()
     {
-       
+       for(int i=0;i<4;i++)
+        {
+            QuickSlotItem.Add(null);
+        }
         
         if (instance==null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+          
         }
-        else
-        {
-
-            if (instance != this) 
-                Destroy(this.gameObject);
-            
-        }
+     
         string[] line = ItemDatabase.text.Substring(0, ItemDatabase.text.Length - 1).Split('\n'); // 아이템 데이터 베이스가 저장되면 마지막줄은 엔터라서 엔터빼고 받기위해서  
         for (int i = 0; i < line.Length; i++)
         {
@@ -97,15 +96,52 @@ public class GameManger : MonoBehaviour
             on[i].SetActive(!click);
         }
     }
+    public void DrawQuickslot()
+    {
+        for(int i=0;i<QuickSlotItem.Count;i++)
+        {
+            if(QuickSlotItem[i]!=null)
+            {
+                InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); 
+                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];
 
+            }
+            else
+            {
+                InvenQuickSlot[i].GetComponentInChildren<Text>().text = null;
+                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = none;
+            }
+        }
+    }
+    public void registQuickSlot()
+    {
+        for (int i = 0; i < QuickSlotItem.Count; i++)
+        {
+            if (QuickSlotItem[i] == null)
+            {
+                QuickSlotItem[i] = CurItem;
+                
+                break;
+
+            }
+            if (QuickSlotItem[i].Name == CurItem.Name)
+            {
+                QuickSlotItem[i] = null;
+                
+                break;
+            }
+            
+        }
+    }
     public void SlotClick(int slotNum)//슬롯클릭때
     {
-        Item CurItem = CurItemList[slotNum]; // 현재 아이템은 슬롯넘버 
+        CurItem = CurItemList[slotNum]; // 현재 아이템은 슬롯넘버 
         Item UsingItem;
-
-
-
-
+        if(CurItem.ItemType=="Potion")
+        {
+            if(QuickSlotItem!=null)
+            registQuickSlot();
+        }
             switch (CurItem.Type) // 클릭한 아이템 타입구별을위해선언 
             {
                 case "Armor": // 타입이 Armor 라면 
@@ -235,19 +271,21 @@ public class GameManger : MonoBehaviour
                 }
                 break;
             }
-        
-       
+
+        DrawQuickslot();
         Save();// json 데이터로 저장 사용중인것들 
     }
 
     public void TabClick(string tabname)// 탭클릭시 온클릭이벤트 
     {
+       
         UsingItemList = MyItemList.FindAll(x => x.isUsing == true);
         Item UsingItem;
         curTab = tabname; // 현재탭은 탭네임 받기 
         if(tabname != "All") // 만약 탭타입이 all 이 아니면 
 
         {
+          
             
             CurItemList = MyItemList.FindAll(x => x.ItemType == tabname); // 내 아이템 리스트에서 아이템 타입과 탭네임이 같은 것을 찾아라 
             UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Helmet");
@@ -308,8 +346,10 @@ public class GameManger : MonoBehaviour
 
             }
         }
-        else
+       
+        else 
         {
+           
             CurItemList = MyItemList;
 
             UsingItem = MyItemList.Find(x => x.isUsing == true && x.Type == "Helmet");
@@ -366,6 +406,7 @@ public class GameManger : MonoBehaviour
                     Slot[i].transform.Find("Eqip").gameObject.SetActive(false);
                 }
             }
+          
         }
 
        
