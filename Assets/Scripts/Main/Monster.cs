@@ -203,7 +203,7 @@ public class Monster : MonoBehaviour
        
             pos = new Vector3(); //목적지 생성
             pos.x = Random.Range(-3f, 3f); //목적지 x 값은 -3~3 사이 랜덤값
-            pos.y = 0.116f;
+           //pos.y = Startpos.y;
             pos.z = Random.Range(-3f, 3f); // 목적지 z 값은 -3~3 사이 랜덤값
             
         pos.x = this.transform.position.x-pos.x;

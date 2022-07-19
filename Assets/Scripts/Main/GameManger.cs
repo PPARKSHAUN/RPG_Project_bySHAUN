@@ -29,7 +29,7 @@ public class GameManger : MonoBehaviour
     public List<Item> Alltem, MyItemList, CurItemList,UsingItemList,DropTabl,QuickSlotItem; //아이템을 리스트 해주기위해
     public string curTab = "All";//처음 탭 타입 
     public Image[] SelectImg; // 아이템 셀렉 이미지 켜주기위해 배열로받고
-    public GameObject[] Slot, Eqipslot,off,on,InvenQuickSlot;//슬롯을 넣기위해 
+    public GameObject[] Slot, Eqipslot,off,on,InvenQuickSlot,MainQuickSlot;//슬롯을 넣기위해 
     public Image[] ItemImage,EqipItemImage; // 슬롯 아이템 이미지 연결 
     public Sprite[] ItemSprite; // 아이템 데이터 베이스순서에 맞게 스프라이트 연결
     public Sprite none;
@@ -38,6 +38,7 @@ public class GameManger : MonoBehaviour
     IEnumerator pointercoroutine; //코루틴 스타트 스탑 해주기위해 선언 
     public GameObject DropPanel;
     public Animator dropanim;
+    public Text[] InvenStat;
    
     Item CurItem;
     // Start is called before the first frame update
@@ -68,6 +69,15 @@ public class GameManger : MonoBehaviour
         }
 
         Load();
+        DrawQuickslot();
+    }
+    public void Inventorystat()
+    {
+        InvenStat[0].text = "레벨 : "+CharacterManger.instance.stat.Level.ToString();
+        InvenStat[1].text = "직업 : "+CharacterManger.instance.unitCode.ToString();
+        InvenStat[2].text = "공격력 : "+(int)(CharacterManger.instance.stat.Damage) * 1 + "~" + (int)(CharacterManger.instance.stat.Damage) * 1.2;
+        InvenStat[3].text = "체력 : "+CharacterManger.instance.stat.maxHp.ToString();
+        InvenStat[4].text = "마나 : "+CharacterManger.instance.stat.curMp.ToString();
     }
     public void InventoryButtonClick()
     {
@@ -82,7 +92,9 @@ public class GameManger : MonoBehaviour
             on[i].SetActive(click);
         }
        on[0].transform.position=player.position+new Vector3(0,1,2);
-       
+        Inventorystat();
+
+
     }
     public void exitbutton()
     {
@@ -96,51 +108,100 @@ public class GameManger : MonoBehaviour
             on[i].SetActive(!click);
         }
     }
-    public void DrawQuickslot()
+    public void DrawQuickslot() // 퀵슬롯 아이템갯수, 아이템아이콘 그려주는 역활 및 save 
     {
         for(int i=0;i<QuickSlotItem.Count;i++)
         {
-            if(QuickSlotItem[i]!=null)
+            if(QuickSlotItem[i]!=null)//퀵슬롯 아이템리스트에 아이템이 존재한다면 
             {
-                InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); 
-                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];
+                InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); //연결된 인벤토리 퀵슬롯 갯수 text는 quickslotitem number를 받아서 넣어주고
+                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];//이미지도 같다
 
             }
-            else
+            else // 존재하지않는다면  초기화 
             {
-                InvenQuickSlot[i].GetComponentInChildren<Text>().text = null;
+                InvenQuickSlot[i].GetComponentInChildren<Text>().text = null; 
                 InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = none;
             }
+            MainQuickSlot[i].GetComponentInChildren<Text>().text = InvenQuickSlot[i].GetComponentInChildren<Text>().text;//메인 과 인벤 퀵슬롯연결 이하동문
+            MainQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite;
         }
+        Save();//json데이터로 저장 
     }
-    public void registQuickSlot()
+    public void registQuickSlot()//퀵슬롯아이템리스트에 등록함수 포션일때만 호출된다 
     {
         for (int i = 0; i < QuickSlotItem.Count; i++)
         {
-            if (QuickSlotItem[i] == null)
+            if (QuickSlotItem[i] == null)//퀵슬롯 아이템이 null 이라면 
             {
-                QuickSlotItem[i] = CurItem;
+                QuickSlotItem[i] = CurItem;//클릭된 아이템 넣고 
                 
-                break;
+                break;//탈출
 
             }
-            if (QuickSlotItem[i].Name == CurItem.Name)
+            if (QuickSlotItem[i].Name == CurItem.Name)//클릭한 아이템과 퀵슬롯에 등록된 아이템이 같다면 
             {
-                QuickSlotItem[i] = null;
+                QuickSlotItem[i] = null; // null 로 초기화후 
                 
-                break;
+                break;//탈출
             }
             
         }
+    }
+    public void InvenQuickSlotClick(int slotNum)//인벤토리 퀵슬롯 클릭시 null 로 초기화 함수
+    {
+        QuickSlotItem[slotNum] = null;
+        DrawQuickslot();//그려주는 함수 호출 
+
+    }
+    public void MainQuickSlotClick(int slotNum)//메인 퀵슬롯 클릭 함수 
+    {
+        if(QuickSlotItem[slotNum]!=null) // 퀵슬롯아이템리스트 i 가 null이 아니면 
+        {
+           switch( QuickSlotItem[slotNum].Type)//퀵슬롯 아이템이 hp 인지 mp 인지 구별후 
+            {
+                case "HP":
+                    if(int.Parse(QuickSlotItem[slotNum].Number)>0)// 갯수가 0 보다 크다면 
+                    {
+                        int i =int.Parse(QuickSlotItem[slotNum].Number) - 1;//int i 선언후 갯수를 빼주고 
+                        QuickSlotItem[slotNum].Number = i.ToString();// 퀵슬롯아이템리스트에 갯수를 다시 넣어주고  
+                        Item MyitemlistHp =MyItemList.Find(x=>x.Name == QuickSlotItem[slotNum].Name);
+                        MyitemlistHp.Number = QuickSlotItem[slotNum].Number;
+                        CharacterManger.instance.stat.curHp += int.Parse(QuickSlotItem[slotNum].value);//캐릭터 cupHp에 value만큼 더해주고 
+                        if(CharacterManger.instance.stat.curHp>=CharacterManger.instance.stat.maxHp)// 만약 curHp가 maxHp 보다 크거나 같으면 
+                        {
+                            CharacterManger.instance.stat.curHp = CharacterManger.instance.stat.maxHp;//curHp는 maxHp로 
+                        }
+                    }
+                    break;
+                case "MP":
+                    if (int.Parse(QuickSlotItem[slotNum].Number) > 0)//위와같다
+                    {
+                        int i = int.Parse(QuickSlotItem[slotNum].Number) - 1;
+                        QuickSlotItem[slotNum].Number = i.ToString();
+                        Item MyitemlistMp = MyItemList.Find(x => x.Name == QuickSlotItem[slotNum].Name);
+                        MyitemlistMp.Number = QuickSlotItem[slotNum].Number;
+                        CharacterManger.instance.stat.curMp += int.Parse(QuickSlotItem[slotNum].value);
+                        if (CharacterManger.instance.stat.curMp >= CharacterManger.instance.stat.maxMp)
+                        {
+                            CharacterManger.instance.stat.curMp = CharacterManger.instance.stat.maxMp;
+                        }
+                    }
+                    break;
+
+            }
+        }
+        
+        DrawQuickslot();//갯수 업데이트 및 저장 
     }
     public void SlotClick(int slotNum)//슬롯클릭때
     {
         CurItem = CurItemList[slotNum]; // 현재 아이템은 슬롯넘버 
         Item UsingItem;
-        if(CurItem.ItemType=="Potion")
+        if(CurItem.ItemType=="Potion")//슬롯클릭시 아이템 타입이 포션이면 
         {
             if(QuickSlotItem!=null)
-            registQuickSlot();
+            registQuickSlot();//등록함수 호출
         }
             switch (CurItem.Type) // 클릭한 아이템 타입구별을위해선언 
             {
@@ -224,6 +285,15 @@ public class GameManger : MonoBehaviour
                 else
                 {
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
+    
+                    if (CurItem.isUsing == true)
+                    {
+                        CharacterManger.instance.stat.Damage += int.Parse(CurItem.value);
+                    }
+                    else
+                    {
+                        CharacterManger.instance.stat.Damage -= int.Parse(UsingItem.value);
+                    }
                 }
                 break;
                 case "Shose":
@@ -271,7 +341,7 @@ public class GameManger : MonoBehaviour
                 }
                 break;
             }
-
+        Inventorystat();
         DrawQuickslot();
         Save();// json 데이터로 저장 사용중인것들 
     }
@@ -575,15 +645,19 @@ public class GameManger : MonoBehaviour
     }
     void Save()
     {
-        string jdata = JsonConvert.SerializeObject(MyItemList); // string에 내 아이템리스트를 json으로 바꿔줘서 넣어주고 
-        File.WriteAllText(Application.dataPath + "/Resources/MyItemText.txt", jdata); // 이파일을 Resources 폴더에 MyItemText jdata로 저장해준다 
+        string jdatamyitemlist = JsonConvert.SerializeObject(MyItemList); // string에 내 아이템리스트를 json으로 바꿔줘서 넣어주고 
+        string jdatamyquickslot = JsonConvert.SerializeObject(QuickSlotItem);
+        File.WriteAllText(Application.dataPath + "/Resources/MyItemText.txt", jdatamyitemlist);
+        File.WriteAllText(Application.dataPath + "/Resources/MyQuickSlot.txt", jdatamyquickslot);// 이파일을 Resources 폴더에 MyItemText jdata로 저장해준다 
         TabClick(curTab); // 탭클릭호출 
     }
 
     void Load()
     {
-        string jdata = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt"); // 내아이템 리스트 를 읽어오고 
-        MyItemList = JsonConvert.DeserializeObject<List<Item>>(jdata); // Convert하여 Myitemlist에 넣어준다 
+        string jdatamyitemlist = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt");
+        string jdatamyquickslot = File.ReadAllText(Application.dataPath + "/Resources/MyQuickSlot.txt");// 내아이템 리스트 를 읽어오고 
+        MyItemList = JsonConvert.DeserializeObject<List<Item>>(jdatamyitemlist); // Convert하여 Myitemlist에 넣어준다 
+        QuickSlotItem =JsonConvert.DeserializeObject<List<Item>>(jdatamyquickslot);
         TabClick(curTab); // 처음 탭클릭 호출
     }
 }
