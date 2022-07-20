@@ -114,6 +114,8 @@ public class GameManger : MonoBehaviour
         {
             if(QuickSlotItem[i]!=null)//퀵슬롯 아이템리스트에 아이템이 존재한다면 
             {
+                Item potion = MyItemList.Find(x => x.Name == QuickSlotItem[i].Name);
+                QuickSlotItem[i].Number = potion.Number;
                 InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); //연결된 인벤토리 퀵슬롯 갯수 text는 quickslotitem number를 받아서 넣어주고
                 InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];//이미지도 같다
 
