@@ -6,45 +6,118 @@ using UnityEngine.UI;
 public class NpcTrigger : MonoBehaviour
 {
 
-    public GameObject ShopCanvas; // 트리거안에 왔을때 켜줄 캔버스 
+    public GameObject canvas; // 트리거안에 왔을때 켜줄 캔버스 
+    public GameObject questwindow;
+    public GameObject[] button;
     public GameObject[] off; // 상점열기 했을때 꺼줄 것들 
-    public GameObject on; // 상점열기했을때 켜줄것들
-  
+    public GameObject[] on; // 상점열기했을때 켜줄것들
+
+    private void Start()
+    {
+      
+    }
+
+
+    
+
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag =="Player" )
         {
-            ShopCanvas.SetActive(true);//트리거안에 들어오면 버튼 활성화 
+                    canvas.SetActive(true);//트리거안에 들어오면 버튼 활성화 
         }
     }
     private void OnTriggerExit(Collider other)
     {
+       
         if (other.tag == "Player")
         {
-            ShopCanvas.SetActive(false);//트리거벗어나면 비활성화
-
+                    canvas.SetActive(false);//트리거벗어나면 비활성화
          }
     }
-    public void ShopOpenButtonClick() // 상점 버튼 클릭시 
+    public void Comunicationbutton()
+    {
+        for(int i=0;i<CharacterManger.instance.myquests.Count;i++)
+        {
+            if(CharacterManger.instance.myquests[i].Questgoal.clearnpcid==GetComponentInParent<NpcData>().id)
+            {
+                CharacterManger.instance.myquests[i].isSucess = true;
+            }
+        }
+    }
+    public void AcceptButton()//수락버튼 클릭 
+    {
+        if(CharacterManger.instance.myquests.Count==0)//캐릭터매니저에 내퀘스트가 하나도없으면 
+        {
+            CharacterManger.instance.myquests.Add(QuestGiver.instance.quest[CharacterManger.instance.questchapter]);//내퀘스트에 추가 
+            QuestGiver.instance.quest[CharacterManger.instance.questchapter].Progress = true;//퀘스트 진행중 ture 
+            questwindow.SetActive(false);//퀘스트 창 꺼지게 
+            for (int i = 0; i < button.Length; i++)//버튼창 다시보이게 
+            {
+                button[i].SetActive(true);
+            }
+        }
+        else//아닐경우 
+        {
+            for (int i = 0; i < CharacterManger.instance.myquests.Count; i++)
+            {
+                if (CharacterManger.instance.myquests[i].goal == QuestGiver.instance.quest[CharacterManger.instance.questchapter].goal)//이미수락된 퀘스트일경우 
+                {
+                    //이미 수락된 퀘스트 라는 팝업 or 그냥냅두기 
+                }
+
+                else//이미수락된 퀘스트가 아닐경우  근데 이미 진행도로 퀘스트를 받기 때문에 상관없을코드
+                {
+                    CharacterManger.instance.myquests.Add(QuestGiver.instance.quest[CharacterManger.instance.questchapter]);//내퀘스트에 추가 
+                    QuestGiver.instance.quest[CharacterManger.instance.questchapter].Progress = true;//진행중 true 
+                    questwindow.SetActive(false);//퀘스트창 꺼지게 
+                    for (int j = 0; j < button.Length; j++)//버튼창 다시보이게 
+                    {
+                        button[j].SetActive(true);
+                    }
+                    break;
+                }
+            }
+        }
+        
+       
+    }
+    public void RejectButton()//거절버튼 클릭 
+    {
+        questwindow.SetActive(false);//퀘스트창 off 
+        for(int i=0;i<button.Length;i++)
+        {
+            button[i].SetActive(true); //버튼창 on 
+        }
+        
+    }
+
+    public void OpenButtonClick() // 상점 버튼 클릭시 
     {
         CharacterManger.instance.CanMove = false;// 캐릭터 이동 막고 
        for(int i=0;i<off.Length;i++) // 꺼줘야할것들 배열로 받아서 다꺼주고 
         {
             off[i].gameObject.SetActive(false); 
         }
-
-        on.SetActive(true);
+        for (int i = 0; i < on.Length; i++) // 꺼줘야할것들 배열로 받아서 다꺼주고 
+        {
+            on[i].gameObject.SetActive(true);
+        }
+      
 
 
     }
-    public void ShopCloseButtonClick()//x버튼 클릭시 
+    public void CloseButtonClick()//x버튼 클릭시 
     {
         CharacterManger.instance.CanMove = true;//캐릭터 이동가능 
         for(int i=0;i<off.Length;i++)//다시켜주고 
         {
             off[i].gameObject.SetActive(true);
         }
-        on.SetActive(false);//캔버스 꺼주고 
+        for (int i = 0; i < on.Length; i++) // 꺼줘야할것들 배열로 받아서 다꺼주고 
+        {
+            on[i].gameObject.SetActive(false);
+        }
 
     }
     public void purchaseButtonClick(int num)

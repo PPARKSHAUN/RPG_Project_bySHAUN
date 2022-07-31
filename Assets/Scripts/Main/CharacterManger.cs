@@ -44,6 +44,9 @@ public class CharacterManger : MonoBehaviour
     public Image hpbar;//상단 hp바
     public Image mpbar; //상단 mp바
     public Text hp, mp;//상단 hp mp 표시 텍스트
+    public List<Quest> myquests = null;
+    public int questchapter = 0;
+    
     private void Start()
     {
         if (instance == null)

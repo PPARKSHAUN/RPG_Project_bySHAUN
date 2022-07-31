@@ -93,7 +93,7 @@ public class GameManger : MonoBehaviour
         }
        on[0].transform.position=player.position+new Vector3(0,1,2);
         Inventorystat();
-
+      
 
     }
     public void exitbutton()
@@ -350,7 +350,7 @@ public class GameManger : MonoBehaviour
 
     public void TabClick(string tabname)// 탭클릭시 온클릭이벤트 
     {
-       
+        
         UsingItemList = MyItemList.FindAll(x => x.isUsing == true);
         Item UsingItem;
         curTab = tabname; // 현재탭은 탭네임 받기 
@@ -520,6 +520,7 @@ public class GameManger : MonoBehaviour
             if(curitem != null) // null 이 아니면 같은걸 찾아진거고 
             {
                 curitem.Number = (int.Parse(getitem.Number)+int.Parse(curitem.Number)).ToString(); // 현재아이템 갯수는 전달받은아이템정보 + 현재아이템 
+                DrawQuickslot();
             }
             else
             {
@@ -652,6 +653,7 @@ public class GameManger : MonoBehaviour
         File.WriteAllText(Application.dataPath + "/Resources/MyItemText.txt", jdatamyitemlist);
         File.WriteAllText(Application.dataPath + "/Resources/MyQuickSlot.txt", jdatamyquickslot);// 이파일을 Resources 폴더에 MyItemText jdata로 저장해준다 
         TabClick(curTab); // 탭클릭호출 
+       
     }
 
     void Load()
