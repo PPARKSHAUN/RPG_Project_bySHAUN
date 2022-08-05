@@ -58,6 +58,10 @@ public class Stat
             case UnitCode.Wolf:
                 stat = new Stat(unitCode, "Wolf", 200,10, 6f, 3f,1,0,0);
                 break;
+            case UnitCode.Dragon:
+                stat = new Stat(unitCode, "Dragon", 1000, 30, 6f, 5f, 1, 0, 0);
+                break;
+              
         }
         return stat;
     }

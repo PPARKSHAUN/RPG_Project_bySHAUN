@@ -8,6 +8,7 @@ public enum UnitCode // 유닛 코드 정리 하려고 만든 enum
     Fighter,
     Paladin,
     Warrior,
-    Wolf
+    Wolf,
+    Dragon
 }
 

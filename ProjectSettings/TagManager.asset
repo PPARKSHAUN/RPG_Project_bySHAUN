@@ -6,6 +6,11 @@ TagManager:
   tags:
   - Monster
   - EnemyAttack
+  - Fire
+  - BossDragon
+  - Enemy
+  - Arrow
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -20,9 +25,9 @@ TagManager:
   - Arrow
   - Player
   - MonsterWeapon
-  - 
-  - 
-  - 
+  - DragonFireball
+  - Dragon
+  - FireLayer
   - 
   - 
   - 

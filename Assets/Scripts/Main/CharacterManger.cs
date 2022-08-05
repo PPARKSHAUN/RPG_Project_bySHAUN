@@ -46,6 +46,8 @@ public class CharacterManger : MonoBehaviour
     public Text hp, mp;//상단 hp mp 표시 텍스트
     public List<Quest> myquests = null;
     public int questchapter = 0;
+    public bool meetboos = false;
+    public GameObject Snipingprefab;
     
     private void Start()
     {
@@ -104,7 +106,7 @@ public class CharacterManger : MonoBehaviour
 
         if (myState==State.BATTLE)
         {
-            if(fixTarget==false)// 스타트코루틴
+            if(fixTarget==false&&Targets!=null)// 스타트코루틴
             {
                 StartCoroutine(SetTartget());
             }
@@ -130,19 +132,38 @@ public class CharacterManger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "EnemyAttack") // 닿은 콜리더 tag가 EnemyAttack 일때 
+
+        Debug.Log("Hitplayer"); // 확인용 
+        if(other.tag == "EnemyAttack")
         {
             if (!isDamage) // 무적시간 이 끝났을때 
             {
 
-                int dmage = other.GetComponentInParent<Monster>().stat.Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
-                stat.curHp -= dmage;
-                Debug.Log("Hitplayer"); // 확인용 
+
+
+                 
+                        int dmage;
+                        dmage = other.GetComponentInParent<Monster>().stat.Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
+                        stat.curHp -= dmage;
+                
+
                 StartCoroutine(Ondamage()); // 코루틴시작 
-               
+
             }
         }
+        
+        
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("BossDragon"))
+        {
+            int dmage;
+            dmage = collision.gameObject.GetComponentInParent<BossDragon>().stat.Damage;    
+            stat.curHp -= dmage;
+        }
+    }
+
 
     IEnumerator Ondamage()
     {
@@ -209,42 +230,51 @@ public class CharacterManger : MonoBehaviour
 
         }
         
-        if(Targets.Count != 0)//판별된 적이 1명이라도 있다면 실행되게 
-        {
-
-            if (targettingimg != null) //새로 타겟팅 됬을때 이미지를 초기화시켜주기위해 
-                targettingimg.SetActive(false);
-
-            myTarget = Targets[0];//첫번째 타겟을 나의타겟으로 넣어놓고 
-            curtarget = Vector3.Distance(transform.position, Targets[0].transform.position);// 그 타겟과 나의 거리를 계산한뒤 
-
-            for(int i=1;i<Targets.Count;i++) //for 문을 돌려주는데 i 의 0번째는 이미 들어갔기때문에 1번째부터 비교하기위해 i= 1 
+            if (Targets.Count != 0)//판별된 적이 1명이라도 있다면 실행되게 
             {
-               
-                float dist=Vector3.Distance(transform.position,Targets[i].transform.position);  //[i]번째 타겟과 내 거리를 계산하고
-                if(dist<curtarget)// [i]번째 타겟의 거리가 현재타겟의 거리보다 작으면 실행
+
+                if (targettingimg != null) //새로 타겟팅 됬을때 이미지를 초기화시켜주기위해 
+                    targettingimg.SetActive(false);
+
+                myTarget = Targets[0];//첫번째 타겟을 나의타겟으로 넣어놓고 
+                curtarget = Vector3.Distance(transform.position, Targets[0].transform.position);// 그 타겟과 나의 거리를 계산한뒤 
+
+                for (int i = 1; i < Targets.Count; i++) //for 문을 돌려주는데 i 의 0번째는 이미 들어갔기때문에 1번째부터 비교하기위해 i= 1 
                 {
-                    myTarget=Targets[i]; //나의타겟은 [i]번째 타겟으로바뀌고
-                    curtarget = dist; // 현재 타겟과의거리도 [i]번째 타겟의거리로 넣어준다.
-                    
+
+                    float dist = Vector3.Distance(transform.position, Targets[i].transform.position);  //[i]번째 타겟과 내 거리를 계산하고
+                    if (dist < curtarget)// [i]번째 타겟의 거리가 현재타겟의 거리보다 작으면 실행
+                    {
+                        myTarget = Targets[i]; //나의타겟은 [i]번째 타겟으로바뀌고
+                        curtarget = dist; // 현재 타겟과의거리도 [i]번째 타겟의거리로 넣어준다.
+
+                    }
+
                 }
+                if(meetboos==false)
+            {
+                targettingimg = myTarget.transform.Find("Canvas").transform.gameObject;// 나의 타겟에 캔버스를 찾아서 
+                targettingimg.SetActive(true);// 캔버스를 보이게해준다.
+            }
                
             }
-
-            targettingimg = myTarget.transform.Find("Canvas").transform.gameObject;// 나의 타겟에 캔버스를 찾아서 
-            targettingimg.SetActive(true);// 캔버스를 보이게해준다.
-        }
-        else if(Targets.Count==0 && targettingimg != null )//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
+            else if (Targets.Count == 0 && targettingimg != null)//만약 타겟이 없고 타겟팅이미지가 null이아니면 안보여지게하기위해 
+            {
+                targettingimg.SetActive(false);
+                myTarget = null;
+            }
+        if (meetboos == false)
         {
-            targettingimg.SetActive(false);
-            myTarget = null;
+            if (myTarget != null)
+                if (myTarget.GetComponent<Monster>().myState == Monster.State.DIE)
+                {
+                    targettingimg.SetActive(false);
+                    myTarget = null;
+                }
         }
-
-        if (myTarget.GetComponent<Monster>().myState==Monster.State.DIE)
-        {
-            targettingimg.SetActive(false);
-            myTarget = null;
-        }
+           
+        
+        
       yield return null;    
     }
 
@@ -294,6 +324,34 @@ public class CharacterManger : MonoBehaviour
 
 
     }
+    IEnumerator Sniping()
+    {
+        Instantiate(Snipingprefab,myTarget.transform.position,Quaternion.identity);
+        
+        CanMove = false;
+        yield return new WaitForSeconds(4f);
+        myanim.SetTrigger("EndSniping");
+        Destroy(Snipingprefab);
+       
+        CanMove = true;
+
+    }
+    public void Skillbutton1()
+    {
+        bool isClicked = true;
+
+        if(myanim.GetBool("IsAttack")==false)
+        {
+            if(myTarget!=null)
+            {
+                myanim.SetTrigger("Sniping");
+                myanim.SetBool("IsMoving", false);
+                transform.LookAt(myTarget.transform);
+                StartCoroutine(Sniping());
+            }
+        }
+    }
+
     void ChangeState(State s)
     {
         if (myState == s) return;

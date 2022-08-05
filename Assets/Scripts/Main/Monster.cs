@@ -19,14 +19,15 @@ public class Monster : MonoBehaviour
     public Collider[] targetIndistance;
     public GameObject myTarget;
     NavMeshAgent nav;
-    Vector3 pos;
+    public Vector3 pos=Vector3.zero;
     public GameObject AttackPoint;
     CharacterManger characterManger;
     public Canvas myCanvas;
     Vector3 Startpos;
     private void Awake()
     {
-        if(instance == null)
+       // Startpos = this.transform.position;
+        if (instance == null)
         {
             instance = this;
         }
@@ -36,7 +37,7 @@ public class Monster : MonoBehaviour
         ChangeState(State.ROAMING);
         nav = GetComponent<NavMeshAgent>();
          characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
-        Startpos = this.transform.position;
+       
     }
     private void OnTriggerEnter(Collider other)//트리거엔터가 발동될때 
     {
@@ -187,6 +188,7 @@ public class Monster : MonoBehaviour
 
             if (dist <= 0.1f) // 시작 위치랑 몬스터의 거리가 0.1 f 보다 작다면 
             {
+                stat.curHp = stat.maxHp;
                 myanim.SetBool("IsWalking", false);                // walk 애니메이션 false 
               
                 ChangeState(State.ROAMING); // 로밍으로변경 
@@ -203,10 +205,10 @@ public class Monster : MonoBehaviour
        
             pos = new Vector3(); //목적지 생성
             pos.x = Random.Range(-3f, 3f); //목적지 x 값은 -3~3 사이 랜덤값
-           //pos.y = Startpos.y;
             pos.z = Random.Range(-3f, 3f); // 목적지 z 값은 -3~3 사이 랜덤값
             
         pos.x = this.transform.position.x-pos.x;
+        pos.y = -1.36f;
         pos.z = this.transform.position.z - pos.z;
       
        
@@ -220,11 +222,12 @@ public class Monster : MonoBehaviour
             this.transform.LookAt(pos); // 몬스터가 이동할때 이동하는곳 바라보게하기위해 
             this.transform.position += dir * stat.moveSpeed * Time.deltaTime; // 현재포지션에 normalize * 설정한 speed * Time.deltaTime 더해주기 
             float distance = Vector3.Distance(transform.position, pos); // 몬스터와 목적지 사이 거리 구하기 
+            myanim.SetBool("IsWalking", true); // 처음에 움직이니까 트루 
             if (distance <=0.1f) // 0.1 이하라면 
             {
                 myanim.SetBool("IsWalking", false); // 걷는 모션 false 후 Idle 들어갈예정 
-                yield return new WaitForSeconds(Random.Range(1f, 3f)); // 랜덤으로 1~3 초기다린후 
-                myanim.SetBool("IsWalking", true); // 다시 걷게하고 
+                yield return new WaitForSeconds(5f); // 랜덤으로 1~3 초기다린후 
+                //myanim.SetBool("IsWalking", true); // 다시 걷게하고 
                 pos.x = Random.Range(-3f, 3f);// 위치설정
                 pos.z = Random.Range(-3f, 3f);//위치설정 
                 pos.x = this.transform.position.x - pos.x;
@@ -252,7 +255,7 @@ public class Monster : MonoBehaviour
             case State.CREATE:
                 break;
             case State.IDLE:
-                
+              
                 StopAllCoroutines(); // 모든 코루틴을 멈추고 
                 StartCoroutine(GoStartPos()); // 시작위치로 돌아가는 코루틴 시작 
 
@@ -266,7 +269,7 @@ public class Monster : MonoBehaviour
 
                 break;
             case State.BATTLE:
-               
+                Startpos = this.transform.position;
                 StopAllCoroutines();
 
                 StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
