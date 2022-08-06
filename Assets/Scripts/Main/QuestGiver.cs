@@ -15,6 +15,7 @@ public class QuestGiver : MonoBehaviour
     public GameObject[] rewardslot;
     public GameObject progerss;
     public GameObject sucess;
+    public Sprite none;
 
     private void Awake()
     {
@@ -37,10 +38,15 @@ public class QuestGiver : MonoBehaviour
               
                 titleText.text = quest[CharacterManger.instance.questchapter].title;//제목=quest[진행도].제목
                 descriptionText.text = quest[CharacterManger.instance.questchapter].description;//설명=qeust[진행도].설명
-                for (int j = 0; j < rewardslot.Length; j++)//보상아이템 이미지는 
+                for (int j = 0; j < quest[CharacterManger.instance.questchapter].Rewarditems.Count; j++)//보상아이템 이미지는 
                 {
+                Debug.Log(j);
                     rewardslot[j].transform.GetChild(1).GetComponent<Image>().sprite = GameManger.instance.ItemSprite[GameManger.instance.Alltem.FindIndex
-                        (x => x.Name == quest[CharacterManger.instance.questchapter].Rewarditems[j].Name)];//보상이템과 이름이같은 스프라이트 설정 
+                        (x => x.Name == quest[CharacterManger.instance.questchapter].Rewarditems[j].Name)];//보상이템과 이름이같은 스프라이트 설정
+                      if (quest[CharacterManger.instance.questchapter].Rewarditems[j]==null)
+                {
+                    rewardslot[j].transform.GetChild(1).GetComponent<Image>().sprite = none;
+                }
                     if (rewardslot[j].transform.GetChild(1).GetComponent<Image>().sprite.name != "NONE")//none이 아닐때 활성화 
                     {
                         rewardslot[j].SetActive(true);
@@ -89,11 +95,23 @@ public class QuestGiver : MonoBehaviour
         for(int i=0;i<rewardslot.Length;i++)
         {
             Item item = GameManger.instance.Alltem.Find(x => x.Name == quest[CharacterManger.instance.questchapter].Rewarditems[i].Name);//allitem에서 이름이같은 아이템을 찾아서 item에 넣고
+            item.Number = quest[CharacterManger.instance.questchapter].Rewarditems[i].Number;
             GameManger.instance.MyItemList.Add(item);//그 아이템을 myitemlist에 추가 
            
 
         }
-        
+        for (int i = 0; i < button.Length; i++)
+        {
+            button[i].SetActive(true);
+        }
+        for(int i=0;i< rewardslot.Length;i++)
+        {
+            rewardslot[i].transform.GetChild(1).GetComponent<Image>().sprite = none;
+            rewardslot[i].gameObject.SetActive(false);
+        }
+        sucess.SetActive(false);
+        sucess.GetComponentInChildren<Text>().text = "진행중";
+        CharacterManger.instance.myquests.Remove(CharacterManger.instance.myquests[CharacterManger.instance.questchapter]);
         CharacterManger.instance.questchapter += 1;//퀘스트 진행도 1 증가 
     }
        

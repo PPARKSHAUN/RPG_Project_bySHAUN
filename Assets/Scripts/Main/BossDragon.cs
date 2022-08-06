@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +7,7 @@ public class BossDragon : MonoBehaviour
     public static BossDragon instance;
     public enum State
     {
-        SLEEP, IDLE, BATTLE1,BATTLE2, DIE
+        SLEEP, IDLE, BATTLE1, BATTLE2, DIE
     }
     public State myState = State.SLEEP;
     public UnitCode unitCode;
@@ -16,7 +15,6 @@ public class BossDragon : MonoBehaviour
     public GameObject myTarget;
     public LayerMask TARGET;
     Animator myanim;
-    bool Issleep = true;
     public Stat stat;
     public GameObject hpbarcanvas;
     public GameObject FireballPrefab;
@@ -28,7 +26,7 @@ public class BossDragon : MonoBehaviour
     public GameObject Metor;
     private void Awake()
     {
-       
+
         if (instance == null)
         {
             instance = this;
@@ -42,84 +40,89 @@ public class BossDragon : MonoBehaviour
     {
         StateProcess();
         Hpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
-        
+        if (stat.curHp <= 0f)
+        {
+            StopAllCoroutines();
+            ChangeState(State.DIE);
+        }
+
     }
     public void Fireball()
     {
         Debug.Log("FireBall");
         Vector3 pos = myTarget.transform.position;
         transform.LookAt(pos);
-        Instantiate(FireballPrefab,FireballPosition.transform.position,FireballPosition.transform.rotation,this.transform);
-       
-        
+        Instantiate(FireballPrefab, FireballPosition.transform.position, FireballPosition.transform.rotation, this.transform);
+
+
     }
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
         if (myState != State.DIE)
         {
-            switch(other.tag)
+            switch (collision.gameObject.tag)
             {
-                case "Arroow":
+                case "Arrow":
                     int playerDamage = Random.Range((int)(CharacterManger.instance.stat.Damage * 1), (int)(CharacterManger.instance.stat.Damage * 1.2));
                     stat.curHp -= playerDamage;
+                    if (stat.curHp <= 0f)
+                    {
+                        ChangeState(State.DIE);
+                    }
                     break;
                 case "Bullet":
                     playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.7);
                     stat.curHp -= playerDamage;
+                    if (stat.curHp <= 0f)
+                    {
+                        ChangeState(State.DIE);
+                    }
                     break;
 
             }
-           
-        }
-       
-        Debug.Log(stat.curHp);
-        if (stat.curHp <= 0f)
-        {
-            ChangeState(State.DIE);
-        }
 
-
+        }
     }
 
     IEnumerator Battle1()
     {
-        
-        while(true)
-        {
-            float distance = Vector3.Distance(transform.position, myTarget.transform.position);
-            Debug.Log(distance);
-           
-                
-                if (distance > 7f )
-                {
-                    myanim.SetTrigger("FireBall");
-                    yield return new WaitForSeconds(3f);
-                }
-                else 
-                {
-                    Debug.Log("BasicAttack");
-                    myanim.SetTrigger("BasicAttack");
-                    yield return new WaitForSeconds(2f);
-                }
-              
-            }
-            
-         
-           
-        
-       
-    }
-    IEnumerator Battle2()
-    {
-       
+
         while (true)
         {
             float distance = Vector3.Distance(transform.position, myTarget.transform.position);
-            if (distance > 7f )
+            Debug.Log(distance);
+
+
+            if (distance > 7f)
             {
-               int p =Random.Range(1,101);
+                myanim.SetTrigger("FireBall");
+                yield return new WaitForSeconds(3f);
+            }
+            else
+            {
+                Debug.Log("BasicAttack");
+                myanim.SetTrigger("BasicAttack");
+                yield return new WaitForSeconds(2f);
+            }
+
+        }
+
+
+
+
+
+    }
+    IEnumerator Battle2()
+    {
+
+        while (true)
+        {
+            float distance = Vector3.Distance(transform.position, myTarget.transform.position);
+            if (distance > 7f)
+            {
+                int p = Random.Range(1, 101);
                 Debug.Log(p);
-                if(p<=20)
+                if (p <= 20)
                 {
                     StartCoroutine(CreateMeteor());
                     yield return new WaitForSeconds(12f);
@@ -129,19 +132,19 @@ public class BossDragon : MonoBehaviour
                     myanim.SetTrigger("Fireball");
                     yield return new WaitForSeconds(3f);
                 }
-                
-               
+
+
             }
-            else 
+            else
             {
                 myanim.SetTrigger("BasicAttack");
                 yield return new WaitForSeconds(2f);
             }
-           
+
 
             yield return null;
         }
-      
+
     }
 
     IEnumerator CreateMeteor()
@@ -150,14 +153,29 @@ public class BossDragon : MonoBehaviour
         myanim.SetBool("Isfly", true);
         yield return new WaitForSeconds(5.1f);
         transform.LookAt(myTarget.transform.position);
-        Instantiate(Metor,myTarget.transform.position,Quaternion.identity,this.transform);
+        Instantiate(Metor, myTarget.transform.position, Quaternion.identity, this.transform);
         yield return new WaitForSeconds(3f);
         myanim.SetTrigger("Ground");
         yield return new WaitForSeconds(3f);
         myanim.SetBool("IsFly", false);
 
     }
-    
+    IEnumerator Disapearing()//Disapearing 코루틴
+    {
+
+        yield return new WaitForSeconds(1.0f); // 1초뒤
+
+        float dist = 1.0f; //1.0f 만큼 내려가게하려고 dist 설정
+        while (dist > 0.0f)// dist 가 0보다 작아질때까지 무한루프
+        {
+            float delta = Time.deltaTime * 0.5f;
+            this.transform.Translate(-Vector3.up * delta); // 초당 0.5f 씩 떨어지게 
+            dist -= delta; // dist 에서 빼준다 delta 만큼 
+            yield return null;
+        }
+        Destroy(this.gameObject);// while 문 끝난후 몬스터 삭제 
+    }
+
     void ChangeState(State s) // State 변경 
     {
 
@@ -177,21 +195,24 @@ public class BossDragon : MonoBehaviour
 
                 break;
             case State.BATTLE2:
-               
+
                 StartCoroutine(CreateMeteor());
-                if(myanim.GetBool("IsFly")==false)
-               {
+                if (myanim.GetBool("IsFly") == false)
+                {
                     StopCoroutine(CreateMeteor());
                     StartCoroutine(Battle2());
                 }
-               
+
 
 
                 break;
             case State.DIE:
+
                 myanim.SetTrigger("Die");
-                CharacterManger.instance.meetboos = false;
                 hpbarcanvas.SetActive(false);
+                StartCoroutine(Disapearing());
+                CharacterManger.instance.meetboos = false;
+
                 break;
 
         }
@@ -204,7 +225,7 @@ public class BossDragon : MonoBehaviour
         switch (myState)
         {
             case State.SLEEP:
-                if(myanim.GetBool("Idle")==true)
+                if (myanim.GetBool("Idle") == true)
                 {
                     ChangeState(State.IDLE);
                 }
@@ -213,7 +234,7 @@ public class BossDragon : MonoBehaviour
 
                 targetIndistance = Physics.OverlapSphere(transform.position, 50f, TARGET);
                 myTarget = targetIndistance[0].gameObject;
-                if (myTarget!=null)
+                if (myTarget != null)
                 {
                     ChangeState(State.BATTLE1);
                 }
@@ -226,7 +247,7 @@ public class BossDragon : MonoBehaviour
                 break;
             case State.BATTLE2:
                 break;
-            case State.DIE: 
+            case State.DIE:
                 break;
 
         }

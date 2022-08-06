@@ -32,15 +32,14 @@ public class Arrow : MonoBehaviour
        
         
     }
-    private void OnTriggerEnter(Collider other)//무언가에 닿앗을때 호출
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Monster"))) // 닿은 오브젝트 이름이 Monster일때
+        if(collision.gameObject.layer.Equals(LayerMask.NameToLayer("Monster")))
         {
-
             Destroy(this.gameObject); // 화살 삭제
-            Debug.Log("Hit"); // 디버그용 
         }
     }
+  
     
   
 }

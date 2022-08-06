@@ -45,11 +45,10 @@ public class TargettingImg : MonoBehaviour
     {
         if(inventory.activeSelf == false)
         {
-            Damage.transform.position = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1, 0));
-            
-            targetimg.transform.position = Camera.main.WorldToScreenPoint(transform.position);
+            Damage.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 1, 0));
+            targetimg.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
             hpbar.fillAmount = Mathf.Lerp(hpbar.fillAmount, (float)Monster.instance.stat.curHp / (float)Monster.instance.stat.maxHp, Time.deltaTime * 10);// 체력바가 부드럽게 줄기위해서 Lerp 를 사용하였다.
-            HpBar.transform.position = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 2, 0));//몬스터 y축으로 2 더높게 뜨게 설정하였다.
+            HpBar.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 2, 0));//몬스터 y축으로 2 더높게 뜨게 설정하였다.
         }
         
        

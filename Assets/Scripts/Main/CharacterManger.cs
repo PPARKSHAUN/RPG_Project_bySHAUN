@@ -45,10 +45,12 @@ public class CharacterManger : MonoBehaviour
     public Image mpbar; //상단 mp바
     public Text hp, mp;//상단 hp mp 표시 텍스트
     public List<Quest> myquests = null;
-    public int questchapter = 0;
+    public int questchapter = 1;
     public bool meetboos = false;
     public GameObject Snipingprefab;
-    
+    public Image cooltimeimg;
+    public Text cooltimetext;
+    bool skill1=true;
     private void Start()
     {
         if (instance == null)
@@ -133,7 +135,7 @@ public class CharacterManger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        Debug.Log("Hitplayer"); // 확인용 
+        
         if(other.tag == "EnemyAttack")
         {
             if (!isDamage) // 무적시간 이 끝났을때 
@@ -336,18 +338,46 @@ public class CharacterManger : MonoBehaviour
         CanMove = true;
 
     }
+    IEnumerator CoolTime(float cooltime)
+    {
+
+
+        skill1 = false;
+        cooltimetext.gameObject.SetActive(true);
+        cooltimeimg.gameObject.SetActive(true);
+        cooltimetext.text = cooltime.ToString();
+        float fillimg = cooltime;
+        while (cooltime>0.0f)
+        {
+            cooltime -=Time.deltaTime;
+            cooltimeimg.fillAmount = cooltime/fillimg;
+            
+           
+            cooltimetext.text = cooltime.ToString("0.0");
+            yield return new WaitForFixedUpdate();
+        }
+        cooltimeimg.gameObject.SetActive(false);
+        cooltimeimg.fillAmount = 1;
+        cooltimetext.gameObject.SetActive(false);
+        skill1 = true;
+        yield break;
+    }
     public void Skillbutton1()
     {
-        bool isClicked = true;
 
-        if(myanim.GetBool("IsAttack")==false)
+       
+
+        if (myanim.GetBool("IsAttack")==false&& skill1 == true)
         {
-            if(myTarget!=null)
+            if(myTarget!=null&&stat.curMp>=30)
             {
+                stat.curMp -= 30;
                 myanim.SetTrigger("Sniping");
                 myanim.SetBool("IsMoving", false);
                 transform.LookAt(myTarget.transform);
+                StartCoroutine(CoolTime(10f));
                 StartCoroutine(Sniping());
+              
             }
         }
     }

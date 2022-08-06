@@ -39,23 +39,37 @@ public class Monster : MonoBehaviour
          characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
        
     }
-    private void OnTriggerEnter(Collider other)//트리거엔터가 발동될때 
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.gameObject.layer.Equals(LayerMask.NameToLayer("Arrow")) && myState != State.DIE)//엔터한 트리거에 레이어 이름이 Arrow 일때 
+        StartCoroutine(OnDamage());
+        if (myState != State.DIE)
         {
-           
-            int playerDamage= Random.Range((int)(characterManger.stat.Damage * 1), (int)(characterManger.stat.Damage * 1.2));
-            stat.curHp -= playerDamage;// 현재 hp 에서 캐릭터 데미지를 빼주고 
-            TargettingImg.instance.Damaging(playerDamage);//Damaigng 함수 호출 (코루틴시작함수)
-            StartCoroutine(OnDamage()); // ondamage 코루틴 시작 
-            ChangeState(State.BATTLE); // 맞게되면 Battle 상태로 변경 
-            myanim.SetTrigger("Damage");// 맞게되면 내 애니메이션 데미지 실행 
+            switch (collision.gameObject.tag)
+            {
+                case "Arrow":
+                    int playerDamage = Random.Range((int)(CharacterManger.instance.stat.Damage * 1), (int)(CharacterManger.instance.stat.Damage * 1.2));
+                    stat.curHp -= playerDamage;
+                    if (stat.curHp <= 0f)
+                    {
+                        ChangeState(State.DIE);
+                    }
+                    break;
+                case "Bullet":
+                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.7);
+                    stat.curHp -= playerDamage;
+                    if (stat.curHp <= 0f)
+                    {
+                        ChangeState(State.DIE);
+                    }
+                    break;
+
+            }
+
         }
-        
-
-
     }
-    IEnumerator OnDamage() // ondamage코루틴 
+   
+
+        IEnumerator OnDamage() // ondamage코루틴 
     {
         targetIndistance = Physics.OverlapSphere(transform.position, 20f, targetmask); // 20f 안에 player 타겟마스크 콜라이더 받기 
         myTarget = targetIndistance[0].gameObject; // player 는 하나밖에없기때문에 0 번을 내타겟으로설정 
@@ -243,7 +257,21 @@ public class Monster : MonoBehaviour
     
 
     }
-   
+    
+    public void CheckQuestGoal()
+    {
+        for(int i=0;i<characterManger.myquests.Count;i++)
+        {
+           if(unitCode == characterManger.myquests[i].UnitCode)
+            {
+                characterManger.myquests[i].Questgoal.EnemyKieeld();
+                if(characterManger.myquests[i].Questgoal.curAmount>=characterManger.myquests[i].Questgoal.requredAmount)
+                {
+                    characterManger.myquests[i].isSucess = true;
+                }
+            }
+        }
+    }
     void ChangeState(State s) // State 변경 
     {
 
@@ -280,7 +308,7 @@ public class Monster : MonoBehaviour
                 StopAllCoroutines();
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
                 GameManger.instance.ItemDrop();//아이템드랍
-              
+                CheckQuestGoal();
                 myanim.SetBool("IsRunnig", false);
                 CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
                 characterManger.fixTarget = false;// 만약 맞았는데 현재 hp 가 0보다작거나 같다면 타겟 세팅을 위해 스타트 코루틴 켜줄 bool 조정 
