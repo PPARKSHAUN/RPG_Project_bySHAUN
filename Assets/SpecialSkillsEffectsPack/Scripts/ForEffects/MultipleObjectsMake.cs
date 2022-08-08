@@ -15,7 +15,7 @@ public class MultipleObjectsMake : _ObjectsMakeBase
     float m_delayTime;
     float m_count;
     float m_scalefactor;
-
+    public AudioClip Laser;
     void Start()
     {
         m_Time = m_Time2 = Time.time;
@@ -36,6 +36,7 @@ public class MultipleObjectsMake : _ObjectsMakeBase
                 for (int i = 0; i < m_makeObjs.Length; i++)
                 {
                     GameObject m_obj = Instantiate(m_makeObjs[i], m_pos, m_rot);
+                    AudioSource.PlayClipAtPoint(Laser, transform.position);
                     Vector3 m_scale = (m_makeObjs[i].transform.localScale + GetRandomVector2(m_randomScale));
                     m_obj.transform.parent = this.transform;
                     m_obj.transform.localScale = m_scale;

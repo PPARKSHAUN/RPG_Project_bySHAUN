@@ -7,11 +7,13 @@ public class TargettingImg : MonoBehaviour
 {
     public static TargettingImg instance;
     public GameObject targetimg;
-    public GameObject inventory;
+
     public Image hpbar; // fillamount 값 조정할거라 이미지 받아와주고 
-    public GameObject HpBar; // hp바 프레임 배경 다가져오기위해 Gameobject로 받아주고 
+    public GameObject HpBarframe; // hp바 프레임 배경 다가져오기위해 Gameobject로 받아주고 
     public Text Damage;//데미지 받기위한 텍스트 
     public GameObject canvas;//데미지 캔버스 
+    public float maxhp;
+    public float curhp;
         // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +21,8 @@ public class TargettingImg : MonoBehaviour
         {
             instance = this;
         }
-        hpbar.fillAmount=(float)Monster.instance.stat.curHp/(float)Monster.instance.stat.maxHp; // 시작시 fillAmount = 몬스터 현제체력/몬스터 체력
+      
+       
     }
 
     public void Damaging(float damage)// 다른스크립트 코루틴은 스타트가 안되기때문에 스타트 해줄 함수 선언 
@@ -43,13 +46,14 @@ public class TargettingImg : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(inventory.activeSelf == false)
-        {
-            Damage.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 1, 0));
+        maxhp = this.gameObject.GetComponent<Monster>().stat.maxHp;
+        curhp = this.gameObject.GetComponent<Monster>().stat.curHp;
+        hpbar.fillAmount = curhp / maxhp; // 시작시 fillAmount = 몬스터 현제체력/몬스터 체력
+        Damage.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 1, 0));
             targetimg.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
-            hpbar.fillAmount = Mathf.Lerp(hpbar.fillAmount, (float)Monster.instance.stat.curHp / (float)Monster.instance.stat.maxHp, Time.deltaTime * 10);// 체력바가 부드럽게 줄기위해서 Lerp 를 사용하였다.
-            HpBar.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 2, 0));//몬스터 y축으로 2 더높게 뜨게 설정하였다.
-        }
+            hpbar.fillAmount = Mathf.Lerp(hpbar.fillAmount, (float)curhp / (float)maxhp, Time.deltaTime * 10);// 체력바가 부드럽게 줄기위해서 Lerp 를 사용하였다.
+           HpBarframe.transform.position = Camera.main.WorldToScreenPoint(this.transform.position + new Vector3(0, 2, 0));//몬스터 y축으로 2 더높게 뜨게 설정하였다.
+        
         
        
     }

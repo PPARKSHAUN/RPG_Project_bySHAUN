@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpawnMonster : MonoBehaviour
 {
-    /*public GameObject rangeObject;
+    public GameObject rangeObject;
     BoxCollider rangeCollider;
     public GameObject[] monstercount;
     
@@ -38,5 +38,5 @@ public class SpawnMonster : MonoBehaviour
 
             GameObject Monster = Instantiate(monster, Return_RandomPosition(), Quaternion.identity);
         }
-    }*/
+    }
 }

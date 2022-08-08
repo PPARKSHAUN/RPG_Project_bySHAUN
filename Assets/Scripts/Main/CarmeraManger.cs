@@ -16,14 +16,14 @@ public class CarmeraManger : MonoBehaviour
 
     private void Awake()
     {
-        player = GameObject.FindWithTag("Player");
+       
        
     }
 
     private void LateUpdate()
     {
-       
-      
+        player = GameObject.FindWithTag("Player");
+
         Armposition.y = player.transform.position.y + 1.6f;
         Armposition.x = player.transform.position.x ;
         Armposition.z = player.transform.position.z ;

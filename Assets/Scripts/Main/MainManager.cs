@@ -10,9 +10,6 @@ public class MainManager : MonoBehaviour
     public static MainManager instance;
     public string myclass;
     public Transform StartPosition;
-    public Image playersimbol;
-    public Sprite[] Icon;
-    RectTransform rectTransform;
     public GameObject[] rendercharacter;
     //public Text Uiclass;
     private void Awake()
@@ -23,8 +20,8 @@ public class MainManager : MonoBehaviour
     }
     private void Start()
     {
-
-        CreateCharacter();
+        Destroy(GameObject.Find("BGM"));
+        
         var bro = Backend.GameData.GetMyData("Character", new Where(), 10);
         for (int i = 0; i < bro.Rows().Count; ++i)
         {
@@ -32,7 +29,9 @@ public class MainManager : MonoBehaviour
             // Debug.Log(myclass);
             //Uiclass.text = "("+myclass+")";
         }
-        rectTransform = (RectTransform)playersimbol.transform;
+      
+        RenderCharacter();
+        CreateCharacter();
     }
 
 
@@ -72,26 +71,25 @@ public class MainManager : MonoBehaviour
         {
             case "Archer":
                 Debug.Log("CreateArcher");
-                GameObject Archer = Instantiate(Resources.Load("Prefabs/Archer") as GameObject,StartPosition.position,StartPosition.rotation);
-                rectTransform.sizeDelta=new Vector2(70,70);
-                playersimbol.sprite = Icon[3];
+                GameObject Archer = Instantiate(Resources.Load("Prefabs/Archer") as GameObject,StartPosition.position,Quaternion.identity);
+               
 
 
                 break;
             case "Paladin":
                 Debug.Log("CreatePaladin");
-                GameObject Paladin = Instantiate(Resources.Load("Prefabs/Paladin") as GameObject, StartPosition.position, StartPosition.rotation);
-                playersimbol.sprite = Icon[1];
+                GameObject Paladin = Instantiate(Resources.Load("Prefabs/Paladin") as GameObject, StartPosition.position, Quaternion.identity);
+               
                 break;
             case "Warrior":
                 Debug.Log("CreateWarrior");
-                GameObject Warrior = Instantiate(Resources.Load("Prefabs/Warrior") as GameObject, StartPosition.position, StartPosition.rotation);
-                playersimbol.sprite = Icon[0];
+                GameObject Warrior = Instantiate(Resources.Load("Prefabs/Warrior") as GameObject, StartPosition.position, Quaternion.identity);
+              
                 break;
             case "Fighter":
                 Debug.Log("CreateFighter");
-                GameObject Fighter = Instantiate(Resources.Load("Prefabs/Fighter") as GameObject, StartPosition.position, StartPosition.rotation);
-                playersimbol.sprite = Icon[2];
+                GameObject Fighter = Instantiate(Resources.Load("Prefabs/Fighter") as GameObject, StartPosition.position, Quaternion.identity);
+               
                 break;
 
         }

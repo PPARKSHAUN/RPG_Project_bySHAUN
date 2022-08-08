@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8627828462289233090}
   - component: {fileID: 8627828462289233091}
   - component: {fileID: 1550433038672629281}
+  - component: {fileID: -3607640125206632930}
   m_Layer: 10
   m_Name: Arrow
   m_TagString: Arrow
@@ -227,3 +228,19 @@ CapsuleCollider:
   m_Height: 0.75
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0.03}
+--- !u!54 &-3607640125206632930
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8627828462289233094}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0

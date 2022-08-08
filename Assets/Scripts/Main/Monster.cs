@@ -14,7 +14,7 @@ public class Monster : MonoBehaviour
     public UnitCode unitCode; // 유닛코드 설정을위해 선언 
     public Stat stat; // 스탯을받아오기위해 
     public Renderer myrenderer;
-    public Animator myanim;
+    Animator myanim;
     public LayerMask targetmask;
     public Collider[] targetIndistance;
     public GameObject myTarget;
@@ -24,6 +24,7 @@ public class Monster : MonoBehaviour
     CharacterManger characterManger;
     public Canvas myCanvas;
     Vector3 Startpos;
+ 
     private void Awake()
     {
        // Startpos = this.transform.position;
@@ -32,16 +33,22 @@ public class Monster : MonoBehaviour
             instance = this;
         }
         
+       
+     
+       
+    }
+    private void Start()
+    {
+
+        myanim = this.gameObject.GetComponentInChildren<Animator>();
         stat = new Stat();// 스탯 뉴 스탯 
         stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
         ChangeState(State.ROAMING);
         nav = GetComponent<NavMeshAgent>();
-         characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
-       
     }
     private void OnCollisionEnter(Collision collision)
     {
-        StartCoroutine(OnDamage());
+     
         if (myState != State.DIE)
         {
             switch (collision.gameObject.tag)
@@ -49,18 +56,24 @@ public class Monster : MonoBehaviour
                 case "Arrow":
                     int playerDamage = Random.Range((int)(CharacterManger.instance.stat.Damage * 1), (int)(CharacterManger.instance.stat.Damage * 1.2));
                     stat.curHp -= playerDamage;
+                    GetComponent<TargettingImg>().Damaging(playerDamage);
+                    StartCoroutine(OnDamage());
                     if (stat.curHp <= 0f)
                     {
                         ChangeState(State.DIE);
                     }
+                    characterManger = GameObject.FindWithTag("Player").GetComponent<CharacterManger>();
                     break;
                 case "Bullet":
-                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.7);
+                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.5);
                     stat.curHp -= playerDamage;
+                    GetComponent<TargettingImg>().Damaging(playerDamage);
+                    StartCoroutine(OnDamage());
                     if (stat.curHp <= 0f)
                     {
                         ChangeState(State.DIE);
                     }
+                    characterManger = GameObject.FindWithTag("Player").GetComponent<CharacterManger>();
                     break;
 
             }
@@ -84,7 +97,7 @@ public class Monster : MonoBehaviour
         {
             myrenderer.material.color = new Color(1, 1, 1); //원래색깔로 
            
-            characterManger.fixTarget = true; //만약 맞았는데 현재 hp 가 0보다크면  타겟 고정을 위해 스탑 코루틴 켜줄 bool 조정 
+            CharacterManger.instance.fixTarget = true; //만약 맞았는데 현재 hp 가 0보다크면  타겟 고정을 위해 스탑 코루틴 켜줄 bool 조정 
         }
         if (stat.curHp <= 0)//현재 hp 가 0보다 작다면
         {
@@ -113,7 +126,6 @@ public class Monster : MonoBehaviour
 
     IEnumerator Battle()
     {
-
 
         myanim.SetBool("IsRunnig", true); // 뛰어오는 애니메이션 재생을위해 
         while (true)
@@ -159,7 +171,7 @@ public class Monster : MonoBehaviour
 
             }
 
-            if(stat.curHp<=0)
+            if(myState==State.DIE)
             {
                
                
@@ -304,13 +316,14 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-                myCanvas.transform.gameObject.SetActive(false);
                 StopAllCoroutines();
+                myCanvas.transform.gameObject.SetActive(false);
+               
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작
                 GameManger.instance.ItemDrop();//아이템드랍
                 CheckQuestGoal();
                 myanim.SetBool("IsRunnig", false);
-                CharacterManger characterManger = GameObject.Find("Archer").GetComponent<CharacterManger>();
+                CharacterManger characterManger = GameObject.FindWithTag("Player").GetComponent<CharacterManger>();
                 characterManger.fixTarget = false;// 만약 맞았는데 현재 hp 가 0보다작거나 같다면 타겟 세팅을 위해 스타트 코루틴 켜줄 bool 조정 
                 myanim.SetTrigger("Dead"); // Dead 트리거 작동으로 Dead 애니메이션 나오고 
                 

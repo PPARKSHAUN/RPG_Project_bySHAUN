@@ -58,6 +58,7 @@ public class BossDragon : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("HitDragon");
         if (myState != State.DIE)
         {
             switch (collision.gameObject.tag)
@@ -71,18 +72,18 @@ public class BossDragon : MonoBehaviour
                     }
                     break;
                 case "Bullet":
-                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.7);
-                    stat.curHp -= playerDamage;
+                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.5);
+                    stat.curHp -= playerDamage;   
                     if (stat.curHp <= 0f)
                     {
                         ChangeState(State.DIE);
                     }
                     break;
-
             }
 
         }
     }
+
 
     IEnumerator Battle1()
     {
@@ -163,16 +164,8 @@ public class BossDragon : MonoBehaviour
     IEnumerator Disapearing()//Disapearing 코루틴
     {
 
-        yield return new WaitForSeconds(1.0f); // 1초뒤
+        yield return new WaitForSeconds(3.0f); // 1초뒤
 
-        float dist = 1.0f; //1.0f 만큼 내려가게하려고 dist 설정
-        while (dist > 0.0f)// dist 가 0보다 작아질때까지 무한루프
-        {
-            float delta = Time.deltaTime * 0.5f;
-            this.transform.Translate(-Vector3.up * delta); // 초당 0.5f 씩 떨어지게 
-            dist -= delta; // dist 에서 빼준다 delta 만큼 
-            yield return null;
-        }
         Destroy(this.gameObject);// while 문 끝난후 몬스터 삭제 
     }
 

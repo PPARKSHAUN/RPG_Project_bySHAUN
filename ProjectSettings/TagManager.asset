@@ -12,11 +12,12 @@ TagManager:
   - Arrow
   - Bullet
   - Wolf
+  - Inventory
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - Fighter
@@ -29,8 +30,8 @@ TagManager:
   - DragonFireball
   - Dragon
   - FireLayer
-  - 
-  - 
+  - LeftFoot
+  - RightFoot
   - 
   - 
   - 

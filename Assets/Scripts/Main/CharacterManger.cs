@@ -37,7 +37,7 @@ public class CharacterManger : MonoBehaviour
     public bool fixTarget; //불값을 이용해 타겟고정할예정 
      public GameObject Backbow;
     public GameObject Handbow;
-    public GameObject inventory;
+    public GameObject myhp, mymp;
     public GameObject MyNickname;
     public Image Myhpbar; //캐릭터 위 hp바
     public Image Mympbar;//캐릭터 위 mp바
@@ -51,8 +51,13 @@ public class CharacterManger : MonoBehaviour
     public Image cooltimeimg;
     public Text cooltimetext;
     bool skill1=true;
+    public Image playersimbol;
+    public Sprite[] Icon;
+    public GameObject inventorypanel;
+    public AudioClip ArrowShoot;
     private void Start()
     {
+        cam = Camera.main.transform;
         if (instance == null)
         {
             instance = this;
@@ -62,8 +67,9 @@ public class CharacterManger : MonoBehaviour
         
         stat = stat.SetUnitStat(unitCode); // 스탯에 SetUnitStat 호출 (유닛코드로 구별하여) 유니티에서 wolf 로 설정해주면됨 
         Load();
-     
-        
+
+
+
         myanim = GetComponent<Animator>();
         Myhpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
         hpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
@@ -86,8 +92,18 @@ public class CharacterManger : MonoBehaviour
     }
     void Load()
     {
-        string jdata = File.ReadAllText(Application.dataPath + "/Resources/Mystat.txt"); // 내 스탯을 읽어오고 
-        stat = JsonConvert.DeserializeObject<Stat>(jdata); // Convert하여 stat에 넣어준다 
+        if(File.Exists(Application.dataPath + "/Resources/Mystat.txt"))
+        {
+            string jdata = File.ReadAllText(Application.dataPath + "/Resources/Mystat.txt"); // 내 스탯을 읽어오고 
+
+            stat = JsonConvert.DeserializeObject<Stat>(jdata); // Convert하여 stat에 넣어준다 
+        }
+       
+       else
+        {
+            Save();
+        }
+           
 
     }
     public void myCondition()
@@ -99,16 +115,36 @@ public class CharacterManger : MonoBehaviour
         hp.text = stat.curHp + "/" + stat.maxHp.ToString();//상단 hp text표현
         mp.text = stat.curMp + "/" + stat.maxMp.ToString();//상단 mp text표현 
     }
+    public void mySymbol()
+    {
+        switch(unitCode)
+        {
+            case UnitCode.Archer:
+                playersimbol.sprite = Icon[0];
+                break;
+            case UnitCode.Paladin:
+                playersimbol.sprite = Icon[2];
+                break;
+            case UnitCode.Warrior:
+                playersimbol.sprite = Icon[1];
+                break;
+            case UnitCode.Fighter:
+                playersimbol.sprite = Icon[3];
+                break;
+        }
+    }
     private void Update()
     {
+        inventorypanel = GameObject.FindWithTag("Inventory");
         myCondition();
         MyNickname.transform.position = Camera.main.WorldToScreenPoint(this.transform.position+new Vector3(0,2.7f,0));
+      
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
         if (myState==State.BATTLE)
         {
-            if(fixTarget==false&&Targets!=null)// 스타트코루틴
+            if(fixTarget==false&&Targets!=null&& inventorypanel==null)// 스타트코루틴
             {
                 StartCoroutine(SetTartget());
             }
@@ -118,17 +154,12 @@ public class CharacterManger : MonoBehaviour
             }
         }
         
-        if (myanim.GetBool("IsAttack") == false && CanMove == true && inventory.activeSelf==false)
+        if (myanim.GetBool("IsAttack") == false && CanMove == true )
         {
             move(h, v);
         
         }
-        if(inventory.activeSelf==true)
-        {
-            
-            myanim.SetBool("IsMoving", false);
-            StopAllCoroutines();
-        }
+
        
     }
 
@@ -163,6 +194,8 @@ public class CharacterManger : MonoBehaviour
             int dmage;
             dmage = collision.gameObject.GetComponentInParent<BossDragon>().stat.Damage;    
             stat.curHp -= dmage;
+
+            StartCoroutine(Ondamage()); // 코루틴시작 
         }
     }
 
@@ -287,6 +320,7 @@ public class CharacterManger : MonoBehaviour
     public void DrawArrow()
     {
         GameObject go = Instantiate(arrow, arrowpoint.transform.position, arrowpoint.transform.rotation);
+        AudioSource.PlayClipAtPoint(ArrowShoot, transform.position);
 
     }
     public void ArrowReocil()
@@ -314,7 +348,7 @@ public class CharacterManger : MonoBehaviour
                     transform.LookAt(myTarget.transform); // 타겟바라보게 
 
 
-
+                    
                 }
                
             }
@@ -329,7 +363,6 @@ public class CharacterManger : MonoBehaviour
     IEnumerator Sniping()
     {
         Instantiate(Snipingprefab,myTarget.transform.position,Quaternion.identity);
-        
         CanMove = false;
         yield return new WaitForSeconds(4f);
         myanim.SetTrigger("EndSniping");

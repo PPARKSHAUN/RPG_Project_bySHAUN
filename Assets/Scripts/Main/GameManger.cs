@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine.UI;
+using BackEnd;
 [System.Serializable]
 public class Item
 {
@@ -33,11 +34,11 @@ public class GameManger : MonoBehaviour
     public Image[] ItemImage,EqipItemImage; // 슬롯 아이템 이미지 연결 
     public Sprite[] ItemSprite; // 아이템 데이터 베이스순서에 맞게 스프라이트 연결
     public Sprite none;
-    public Transform player;
     public GameObject ExplainPanel;//팝업창 패널 
     IEnumerator pointercoroutine; //코루틴 스타트 스탑 해주기위해 선언 
     public GameObject DropPanel;
     public Animator dropanim;
+    GameObject player;
     public Text[] InvenStat;
    
     Item CurItem;
@@ -73,14 +74,16 @@ public class GameManger : MonoBehaviour
     }
     public void Inventorystat()
     {
-        InvenStat[0].text = "레벨 : "+CharacterManger.instance.stat.Level.ToString();
-        InvenStat[1].text = "직업 : "+CharacterManger.instance.unitCode.ToString();
-        InvenStat[2].text = "공격력 : "+(int)(CharacterManger.instance.stat.Damage) * 1 + "~" + (int)(CharacterManger.instance.stat.Damage) * 1.2;
-        InvenStat[3].text = "체력 : "+CharacterManger.instance.stat.maxHp.ToString();
-        InvenStat[4].text = "마나 : "+CharacterManger.instance.stat.curMp.ToString();
+        InvenStat[0].text = "레벨 : "+ player.GetComponent<CharacterManger>().stat.Level.ToString();
+        InvenStat[1].text = "직업 : "+ player.GetComponent<CharacterManger>().unitCode.ToString();
+        InvenStat[2].text = "공격력 : "+(int)(player.GetComponent<CharacterManger>().stat.Damage) * 1 + "~" + (int)(player.GetComponent<CharacterManger>().stat.Damage) * 1.2;
+        InvenStat[3].text = "체력 : "+ player.GetComponent<CharacterManger>().stat.maxHp.ToString();
+        InvenStat[4].text = "마나 : "+ player.GetComponent<CharacterManger>().stat.curMp.ToString();
     }
     public void InventoryButtonClick()
     {
+        player = GameObject.FindWithTag("Player");
+
         
         bool click = true;
        for(int i=0;i<off.Length;i++)
@@ -91,9 +94,9 @@ public class GameManger : MonoBehaviour
         {
             on[i].SetActive(click);
         }
-       on[0].transform.position=player.position+new Vector3(0,1,2);
+     
         Inventorystat();
-      
+        player.GetComponent<CharacterManger>().CanMove = false;
 
     }
     public void exitbutton()
@@ -107,6 +110,7 @@ public class GameManger : MonoBehaviour
         {
             on[i].SetActive(!click);
         }
+        CharacterManger.instance.CanMove = true;
     }
     public void DrawQuickslot() // 퀵슬롯 아이템갯수, 아이템아이콘 그려주는 역활 및 save 
     {
@@ -646,17 +650,18 @@ public class GameManger : MonoBehaviour
             return probs.Length - 1;
         }
     }
-    void Save()
+    public void Save()
     {
         string jdatamyitemlist = JsonConvert.SerializeObject(MyItemList); // string에 내 아이템리스트를 json으로 바꿔줘서 넣어주고 
         string jdatamyquickslot = JsonConvert.SerializeObject(QuickSlotItem);
         File.WriteAllText(Application.dataPath + "/Resources/MyItemText.txt", jdatamyitemlist);
         File.WriteAllText(Application.dataPath + "/Resources/MyQuickSlot.txt", jdatamyquickslot);// 이파일을 Resources 폴더에 MyItemText jdata로 저장해준다 
         TabClick(curTab); // 탭클릭호출 
-       
+        
+      
     }
 
-    void Load()
+    public void Load()
     {
         string jdatamyitemlist = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt");
         string jdatamyquickslot = File.ReadAllText(Application.dataPath + "/Resources/MyQuickSlot.txt");// 내아이템 리스트 를 읽어오고 
@@ -664,4 +669,5 @@ public class GameManger : MonoBehaviour
         QuickSlotItem =JsonConvert.DeserializeObject<List<Item>>(jdatamyquickslot);
         TabClick(curTab); // 처음 탭클릭 호출
     }
+  
 }

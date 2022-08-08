@@ -1,1 +1,1 @@
-{"unitCode":0,"name":"Archer","maxHp":320,"curHp":140,"Damage":55,"moveSpeed":6.0,"AttackRange":15.0,"Level":1,"maxMp":110,"curMp":20}
+{"unitCode":0,"name":"Archer","maxHp":210,"curHp":-1020,"Damage":55,"moveSpeed":6.0,"AttackRange":15.0,"Level":1,"maxMp":80,"curMp":20}
