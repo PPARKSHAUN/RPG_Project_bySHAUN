@@ -11,6 +11,8 @@ public class MainManager : MonoBehaviour
     public string myclass;
     public Transform StartPosition;
     public GameObject[] rendercharacter;
+    public AudioClip mainbgm;
+    public GameObject Archerprefab;
     //public Text Uiclass;
     private void Awake()
     {
@@ -20,8 +22,11 @@ public class MainManager : MonoBehaviour
     }
     private void Start()
     {
-        Destroy(GameObject.Find("BGM"));
+
+        BGM.instance.ChangeMusic(1);
         
+
+
         var bro = Backend.GameData.GetMyData("Character", new Where(), 10);
         for (int i = 0; i < bro.Rows().Count; ++i)
         {
@@ -32,6 +37,7 @@ public class MainManager : MonoBehaviour
       
         RenderCharacter();
         CreateCharacter();
+       
     }
 
 
@@ -71,7 +77,7 @@ public class MainManager : MonoBehaviour
         {
             case "Archer":
                 Debug.Log("CreateArcher");
-                GameObject Archer = Instantiate(Resources.Load("Prefabs/Archer") as GameObject,StartPosition.position,Quaternion.identity);
+                GameObject Archer = Instantiate(Archerprefab, StartPosition.position,Quaternion.identity);
                
 
 

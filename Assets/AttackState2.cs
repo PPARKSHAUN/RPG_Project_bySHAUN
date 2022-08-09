@@ -11,7 +11,7 @@ public class AttackState2 : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
    {
         animator.SetBool("IsAttack", false);
-        GameObject.Find("Archer").GetComponent<CharacterManger>().CanMove = true;
+      
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

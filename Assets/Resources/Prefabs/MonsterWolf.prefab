@@ -1527,7 +1527,6 @@ MonoBehaviour:
   myState: 0
   unitCode: 4
   myrenderer: {fileID: 2948949742775384458}
-  myanim: {fileID: 2948949742779549514}
   targetmask:
     serializedVersion: 2
     m_Bits: 2048
@@ -1536,6 +1535,7 @@ MonoBehaviour:
   pos: {x: 0, y: 0, z: 0}
   AttackPoint: {fileID: 8051024553523991229}
   myCanvas: {fileID: 8051024552541938047}
+  Attacksound: {fileID: 8300000, guid: 2bf79ffdb13f3f9409fd029c14911bae, type: 3}
 --- !u!54 &8051024552272005634
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -7,13 +7,16 @@ public class QuestWindow : MonoBehaviour
 {
     public GameObject prefab;
     public GameObject QuestlistWindow;
+    public AudioClip click;
     public void ClickQuestList()//메인 ui 에서 퀘스트 창 열었을때 
     {
+        SoundManger.instance.SFXPlay("Click", click);
         DrawList();// 퀘스트창 그리기 
         QuestlistWindow.SetActive(true);//퀘스트목록  활성화 
     }
     public void ExitButtonclick()//x버튼 클릭시 
     {
+        SoundManger.instance.SFXPlay("Click", click);
         QuestlistWindow.SetActive(false);//퀘스트창 꺼지게 
         DestroyList();// 퀘스트 지워버리기 
     }

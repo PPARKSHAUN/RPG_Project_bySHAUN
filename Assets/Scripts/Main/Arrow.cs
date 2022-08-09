@@ -37,7 +37,7 @@ public class Arrow : MonoBehaviour
     {
         if(collision.gameObject.layer.Equals(LayerMask.NameToLayer("Monster")))
         {
-            CharacterManger.instance.CanMove = true;
+           
             Destroy(this.gameObject); // 화살 삭제
         }
     }

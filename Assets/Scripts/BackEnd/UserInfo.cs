@@ -15,7 +15,7 @@ public class UserInfo : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+       // DontDestroyOnLoad(gameObject);
         if (instance == null) instance = this;
         else if (instance != null) return;
     }

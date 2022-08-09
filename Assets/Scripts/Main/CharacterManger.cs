@@ -19,7 +19,7 @@ public class CharacterManger : MonoBehaviour
     public UnitCode unitCode; // 유닛코드 설정을 위해 
  
     [SerializeField]Transform characterBody;
-    Animator myanim;
+    public Animator myanim;
     float distance =15f; //자동공격 감지거리 
     public LayerMask targetmask;
     public LayerMask etcmask;
@@ -29,7 +29,7 @@ public class CharacterManger : MonoBehaviour
     public GameObject myTarget;
     public float curtarget;
     public float targetTomyPosition;
-    public bool CanMove=true;
+    bool CanMove=true;
     public GameObject arrow;
     public GameObject arrowpoint;
     public Renderer[] meshs;// 플레이어 mesh 배열 
@@ -55,6 +55,9 @@ public class CharacterManger : MonoBehaviour
     public Sprite[] Icon;
     public GameObject inventorypanel;
     public AudioClip ArrowShoot;
+    public AudioClip[] Damage;
+    public AudioClip Skill01;
+    public AudioClip[] basicattack;
     private void Start()
     {
         cam = Camera.main.transform;
@@ -70,14 +73,14 @@ public class CharacterManger : MonoBehaviour
 
 
 
-        myanim = GetComponent<Animator>();
+       
         Myhpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
         hpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
         Mympbar.fillAmount = (float)stat.curMp / (float)stat.maxMp;
         mpbar.fillAmount = (float)stat.curMp / (float)stat.maxMp;
         hp.text = stat.curHp + "/" + stat.maxHp.ToString();
         mp.text = stat.curMp + "/" + stat.maxMp.ToString();
-        CanMove = true;
+     
         
     }
     private void OnApplicationQuit()//게임 종료시 스탯 save
@@ -153,11 +156,12 @@ public class CharacterManger : MonoBehaviour
                 StopCoroutine(SetTartget());
             }
         }
-        
-        if (myanim.GetBool("IsAttack") == false && CanMove == true )
+       
+
+        if (myanim.GetBool("IsAttack") == false&& CanMove==true)
         {
             move(h, v);
-        
+
         }
 
        
@@ -171,11 +175,11 @@ public class CharacterManger : MonoBehaviour
         {
             if (!isDamage) // 무적시간 이 끝났을때 
             {
+                SoundManger.instance.SFXPlay("Damge", Damage[Random.Range(0, Damage.Length)]);
 
 
 
-                 
-                        int dmage;
+                int dmage;
                         dmage = other.GetComponentInParent<Monster>().stat.Damage; // 몬스터 데미지 얻어와서 hp - 해줄려고
                         stat.curHp -= dmage;
                 
@@ -191,6 +195,7 @@ public class CharacterManger : MonoBehaviour
     {
         if(collision.gameObject.CompareTag("BossDragon"))
         {
+            SoundManger.instance.SFXPlay("Damge", Damage[Random.Range(0, Damage.Length)]);
             int dmage;
             dmage = collision.gameObject.GetComponentInParent<BossDragon>().stat.Damage;    
             stat.curHp -= dmage;
@@ -320,8 +325,8 @@ public class CharacterManger : MonoBehaviour
     public void DrawArrow()
     {
         GameObject go = Instantiate(arrow, arrowpoint.transform.position, arrowpoint.transform.rotation);
-        AudioSource.PlayClipAtPoint(ArrowShoot, transform.position);
-
+        SoundManger.instance.SFXPlay("ArrowShoot", ArrowShoot);
+        CanMove = true;
     }
     public void ArrowReocil()
     {
@@ -340,9 +345,11 @@ public class CharacterManger : MonoBehaviour
             }
             if (myTarget != null) //배틀모드일때 타겟이 null이 아니라면 
             {
-                CanMove = false; // 움직임제한
+              
                 if(myTarget !=null) // 내타겟이 null 이 아니라면 
                 {
+                    CanMove = false; // 움직임제한
+                    SoundManger.instance.SFXPlay("PlayerAttack", basicattack[Random.Range(0, Damage.Length)]);
                     float dist = Vector3.Distance(this.transform.position,myTarget.transform.position);  // 거리값을구해서
                     myanim.SetTrigger("Attack"); // 어택 트리거 활성화 
                     transform.LookAt(myTarget.transform); // 타겟바라보게 
@@ -364,6 +371,7 @@ public class CharacterManger : MonoBehaviour
     {
         Instantiate(Snipingprefab,myTarget.transform.position,Quaternion.identity);
         CanMove = false;
+        SoundManger.instance.SFXPlay("Skill01", Skill01);
         yield return new WaitForSeconds(4f);
         myanim.SetTrigger("EndSniping");
         Destroy(Snipingprefab);

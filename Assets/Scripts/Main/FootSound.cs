@@ -10,7 +10,7 @@ public class FootSound : MonoBehaviour
     {
         if(other.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
-            AudioSource.PlayClipAtPoint(footSound, transform.position);
+            SoundManger.instance.SFXPlay("FootSound", footSound);
         }
     }
 }

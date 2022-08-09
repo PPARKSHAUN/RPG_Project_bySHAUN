@@ -24,6 +24,11 @@ public class BossDragon : MonoBehaviour
     public BoxCollider MeteorArea;
     public Image Hpbar;
     public GameObject Metor;
+    
+    public AudioClip Dragonbgm;
+    public AudioClip beforebgm;
+    public AudioClip fly;
+    public AudioClip Fireballsound;
     private void Awake()
     {
 
@@ -35,6 +40,7 @@ public class BossDragon : MonoBehaviour
         stat = new Stat();
         stat = stat.SetUnitStat(unitCode);
         myanim = GetComponent<Animator>();
+        
     }
     private void Update()
     {
@@ -46,12 +52,14 @@ public class BossDragon : MonoBehaviour
             ChangeState(State.DIE);
         }
 
+        
     }
     public void Fireball()
     {
-        Debug.Log("FireBall");
+        
         Vector3 pos = myTarget.transform.position;
         transform.LookAt(pos);
+        SoundManger.instance.SFXPlay("DragonFireBall", Fireballsound);
         Instantiate(FireballPrefab, FireballPosition.transform.position, FireballPosition.transform.rotation, this.transform);
 
 
@@ -150,8 +158,9 @@ public class BossDragon : MonoBehaviour
 
     IEnumerator CreateMeteor()
     {
-        myanim.SetTrigger("Fly");
         myanim.SetBool("Isfly", true);
+        myanim.SetTrigger("Fly");
+       
         yield return new WaitForSeconds(5.1f);
         transform.LookAt(myTarget.transform.position);
         Instantiate(Metor, myTarget.transform.position, Quaternion.identity, this.transform);
@@ -181,6 +190,7 @@ public class BossDragon : MonoBehaviour
 
                 break;
             case State.IDLE:
+                BGM.instance.ChangeMusic(2);
 
                 break;
             case State.BATTLE1:
@@ -200,7 +210,8 @@ public class BossDragon : MonoBehaviour
 
                 break;
             case State.DIE:
-
+                BGM.instance.ChangeMusic(1);
+                myanim.SetBool("Idle", false);
                 myanim.SetTrigger("Die");
                 hpbarcanvas.SetActive(false);
                 StartCoroutine(Disapearing());
@@ -239,6 +250,10 @@ public class BossDragon : MonoBehaviour
                 }
                 break;
             case State.BATTLE2:
+                if(myanim.GetBool("IsFly")==true)
+                {
+                    SoundManger.instance.SFXPlay("Fly", fly);
+                }
                 break;
             case State.DIE:
                 break;

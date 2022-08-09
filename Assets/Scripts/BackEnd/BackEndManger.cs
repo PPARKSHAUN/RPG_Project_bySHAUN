@@ -9,8 +9,8 @@ public class BackEndManger : MonoBehaviour
 {
     public InputField id;
     public InputField pw;
-    UserInfo userInfo = new UserInfo();
-
+    
+    public AudioClip click;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +21,7 @@ public class BackEndManger : MonoBehaviour
     public void ClickSignUp()
     {
         BackendReturnObject BRO = Backend.BMember.CustomSignUp(id.text, pw.text);
+        SoundManger.instance.SFXPlay("Click", click);
         if(BRO.IsSuccess())
         {
             Debug.Log("회원가입에 성공했습니다.");
@@ -31,6 +32,7 @@ public class BackEndManger : MonoBehaviour
     {
       
         BackendReturnObject bro = Backend.BMember.CustomLogin(id.text, pw.text);
+        SoundManger.instance.SFXPlay("Click", click);
         if (bro.IsSuccess())
         {
             Debug.Log("로그인에 성공했습니다");

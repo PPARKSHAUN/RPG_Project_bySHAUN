@@ -40,7 +40,8 @@ public class GameManger : MonoBehaviour
     public Animator dropanim;
     GameObject player;
     public Text[] InvenStat;
-   
+
+    public AudioClip invenclick;
     Item CurItem;
     // Start is called before the first frame update
     private void Update()
@@ -83,7 +84,7 @@ public class GameManger : MonoBehaviour
     public void InventoryButtonClick()
     {
         player = GameObject.FindWithTag("Player");
-
+        SoundManger.instance.SFXPlay("Click", invenclick);
         
         bool click = true;
        for(int i=0;i<off.Length;i++)
@@ -96,11 +97,12 @@ public class GameManger : MonoBehaviour
         }
      
         Inventorystat();
-        player.GetComponent<CharacterManger>().CanMove = false;
+      
 
     }
     public void exitbutton()
     {
+        SoundManger.instance.SFXPlay("Click", invenclick);
         bool click = true;
         for (int i = 0; i < off.Length; i++)
         {
@@ -110,7 +112,7 @@ public class GameManger : MonoBehaviour
         {
             on[i].SetActive(!click);
         }
-        CharacterManger.instance.CanMove = true;
+        
     }
     public void DrawQuickslot() // 퀵슬롯 아이템갯수, 아이템아이콘 그려주는 역활 및 save 
     {
@@ -663,11 +665,21 @@ public class GameManger : MonoBehaviour
 
     public void Load()
     {
-        string jdatamyitemlist = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt");
-        string jdatamyquickslot = File.ReadAllText(Application.dataPath + "/Resources/MyQuickSlot.txt");// 내아이템 리스트 를 읽어오고 
-        MyItemList = JsonConvert.DeserializeObject<List<Item>>(jdatamyitemlist); // Convert하여 Myitemlist에 넣어준다 
-        QuickSlotItem =JsonConvert.DeserializeObject<List<Item>>(jdatamyquickslot);
-        TabClick(curTab); // 처음 탭클릭 호출
+        if (File.Exists(Application.dataPath + "/Resources/MyItemText.txt")&& File.Exists(Application.dataPath + "/Resources/MyQuickSlot.txt"))
+        {
+            string jdatamyitemlist = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt");
+            MyItemList = JsonConvert.DeserializeObject<List<Item>>(jdatamyitemlist); // Convert하여 Myitemlist에 넣어준다 
+            string jdatamyquickslot = File.ReadAllText(Application.dataPath + "/Resources/MyQuickSlot.txt");// 내아이템 리스트 를 읽어오고 QuickSlotItem = JsonConvert.DeserializeObject<List<Item>>(jdatamyquickslot);
+
+            TabClick(curTab); // 처음 탭클릭 호출
+        }
+        else
+        {
+            TabClick(curTab); // 처음 탭클릭 호출
+            Save();
+        }
+            
+        
     }
   
 }

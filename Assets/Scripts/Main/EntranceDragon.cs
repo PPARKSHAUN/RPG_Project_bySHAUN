@@ -10,6 +10,7 @@ public class EntranceDragon : MonoBehaviour
     public GameObject maincam;
     public GameObject Animcam;
     public Animator RockAnim;
+    public AudioClip click;
     private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.layer.Equals(LayerMask.NameToLayer("Player")))
@@ -30,6 +31,7 @@ public class EntranceDragon : MonoBehaviour
 
     public void yesbuttonclick()
     {
+        SoundManger.instance.SFXPlay("Click", click);
         RockAnim.SetTrigger("RockMove");
  
         Animcam.SetActive(true);
@@ -39,6 +41,7 @@ public class EntranceDragon : MonoBehaviour
 
     public void nobuttionclick()
     {
+        SoundManger.instance.SFXPlay("Click", click);
         on.SetActive(false);
         off.SetActive(true);
     }

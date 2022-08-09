@@ -31,7 +31,8 @@ public class UiBtnClick : MonoBehaviour
     public void CreateButtonClick()
     {
         CharacterClass = DataManger.instance.curCharcter.ToString();
-       if(CheckNickname()==false)
+        SoundManger.instance.SFXPlay("ButtonClick", clip);
+        if (CheckNickname()==false)
         {
             Debug.Log("닉네임은 한글,영어,숫자로만 구성가능합니다.");
             return;

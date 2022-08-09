@@ -1,1 +1,1 @@
-[{"ItemType":"Potion","Type":"HP","Name":"초보자용 HP회복 포션","Explain":"HP 50 회복 포션","Number":"8","value":"50\r","isUsing":false},{"ItemType":"Potion","Type":"MP","Name":"초보자용 MP회복 포션","Explain":"MP 20 회복 포션","Number":"7","value":"20\r","isUsing":false},null,null]
+[null,null,null,null]

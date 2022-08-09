@@ -16,6 +16,7 @@ public class QuestGiver : MonoBehaviour
     public GameObject progerss;
     public GameObject sucess;
     public Sprite none;
+    public AudioClip click;
 
     private void Awake()
     {
@@ -27,7 +28,7 @@ public class QuestGiver : MonoBehaviour
     }
     public void OpenQuestWindow()//npc ㅌ
     {
-        
+        SoundManger.instance.SFXPlay("Click", click);
             if(quest[CharacterManger.instance.questchapter].Progress==false&&quest[CharacterManger.instance.questchapter].isSucess==false)//quest[퀘스트진행도].progress,  issucees 가 false면 수락전 완료전 퀘스트 
             {
                 questWindow.SetActive(true);//퀘스트 창 보이게 
@@ -91,6 +92,7 @@ public class QuestGiver : MonoBehaviour
 
     public void Sucess()//퀘스트 완료후 보상받을때 
     {
+        SoundManger.instance.SFXPlay("Click", click);
         questWindow.SetActive(false);
         for(int i=0;i<rewardslot.Length;i++)
         {

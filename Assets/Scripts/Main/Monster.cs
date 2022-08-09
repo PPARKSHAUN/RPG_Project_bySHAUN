@@ -24,7 +24,7 @@ public class Monster : MonoBehaviour
     CharacterManger characterManger;
     public Canvas myCanvas;
     Vector3 Startpos;
- 
+    public AudioClip Attacksound;
     private void Awake()
     {
        // Startpos = this.transform.position;
@@ -155,6 +155,7 @@ public class Monster : MonoBehaviour
                 if (myanim.GetBool("IsAttack") == false) // 공격중이아니라면 
                 {
                     myanim.SetTrigger("Attack"); //공격애니메이션 재생 
+                    SoundManger.instance.SFXPlay("MonsterAttack", Attacksound);
                     StartCoroutine(Attack()); // 코루틴시작 
                 }
 

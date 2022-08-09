@@ -11,7 +11,7 @@ public class NpcTrigger : MonoBehaviour
     public GameObject[] button;
     public GameObject[] off; // 상점열기 했을때 꺼줄 것들 
     public GameObject[] on; // 상점열기했을때 켜줄것들
-
+    public AudioClip click;
     private void Start()
     {
       
@@ -37,6 +37,7 @@ public class NpcTrigger : MonoBehaviour
     }
     public void Comunicationbutton()
     {
+        SoundManger.instance.SFXPlay("Click", click);
         for(int i=0;i<CharacterManger.instance.myquests.Count;i++)
         {
             if(CharacterManger.instance.myquests[i].Questgoal.clearnpcid==GetComponentInParent<NpcData>().id)
@@ -47,7 +48,8 @@ public class NpcTrigger : MonoBehaviour
     }
     public void AcceptButton()//수락버튼 클릭 
     {
-        if(CharacterManger.instance.myquests.Count==0)//캐릭터매니저에 내퀘스트가 하나도없으면 
+        SoundManger.instance.SFXPlay("Click", click);
+        if (CharacterManger.instance.myquests.Count==0)//캐릭터매니저에 내퀘스트가 하나도없으면 
         {
             CharacterManger.instance.myquests.Add(QuestGiver.instance.quest[CharacterManger.instance.questchapter]);//내퀘스트에 추가 
             QuestGiver.instance.quest[CharacterManger.instance.questchapter].Progress = true;//퀘스트 진행중 ture 
@@ -84,6 +86,7 @@ public class NpcTrigger : MonoBehaviour
     }
     public void RejectButton()//거절버튼 클릭 
     {
+        SoundManger.instance.SFXPlay("Click", click);
         questwindow.SetActive(false);//퀘스트창 off 
         for(int i=0;i<button.Length;i++)
         {
@@ -94,7 +97,8 @@ public class NpcTrigger : MonoBehaviour
 
     public void OpenButtonClick() // 상점 버튼 클릭시 
     {
-        CharacterManger.instance.CanMove = false;// 캐릭터 이동 막고 
+        SoundManger.instance.SFXPlay("Click", click);
+        
        for(int i=0;i<off.Length;i++) // 꺼줘야할것들 배열로 받아서 다꺼주고 
         {
             off[i].gameObject.SetActive(false); 
@@ -109,7 +113,8 @@ public class NpcTrigger : MonoBehaviour
     }
     public void CloseButtonClick()//x버튼 클릭시 
     {
-        CharacterManger.instance.CanMove = true;//캐릭터 이동가능 
+        SoundManger.instance.SFXPlay("Click", click);
+        
         for(int i=0;i<off.Length;i++)//다시켜주고 
         {
             off[i].gameObject.SetActive(true);
@@ -122,8 +127,9 @@ public class NpcTrigger : MonoBehaviour
     }
     public void purchaseButtonClick(int num)
     {
-        
-            switch (num)
+        SoundManger.instance.SFXPlay("Click", click);
+
+        switch (num)
             {
                 case 0:
                     Item myhp = GameManger.instance.MyItemList.Find(x => x.Name == "초보자용 HP회복 포션");//내아이템목록에서 네임 같은걸 찾고 
