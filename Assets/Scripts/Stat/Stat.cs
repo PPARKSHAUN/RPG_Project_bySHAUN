@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using LitJson;
 public class Stat
 {
     Stat stat = null;
-    public UnitCode unitCode { get; } //유닛 코드는 바꿀 수 없게 Get만
+    public UnitCode unitCode { get; set; } //유닛 코드는 바꿀 수 없게 Get만
     public string name { get; set; } //name 받고 셋팅 까지 할수있게 이하동문 
     public int maxHp { get; set; }
     public int curHp { get; set; }
@@ -64,6 +64,21 @@ public class Stat
               
         }
         return stat;
+    }
+    public Stat (JsonData json)
+    {
+        maxHp = int.Parse(json["maxHp"].ToString());
+        curHp = int.Parse(json["curHp"].ToString());
+        moveSpeed = int.Parse(json["moveSpeed"].ToString());
+        unitCode = 0;
+        Level = int.Parse(json["Level"].ToString());
+        name = "Archer";
+
+        AttackRange = int.Parse(json["AttackRange"].ToString());
+        maxMp = int.Parse(json["maxMp"].ToString());
+        curMp = int.Parse(json["curMp"].ToString());
+        Damage = int.Parse(json["Damage"].ToString());
+    
     }
     
 }

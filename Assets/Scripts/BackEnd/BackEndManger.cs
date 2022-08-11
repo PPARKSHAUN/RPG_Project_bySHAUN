@@ -9,7 +9,7 @@ public class BackEndManger : MonoBehaviour
 {
     public InputField id;
     public InputField pw;
-    
+    public InputField input;
     public AudioClip click;
     // Start is called before the first frame update
     void Start()
@@ -57,6 +57,7 @@ public class BackEndManger : MonoBehaviour
             
         }
     }
+   
     private void InitializeBackEnd() //뒤끝 초기화 
     {
         var bro = Backend.Initialize(true);

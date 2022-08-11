@@ -10,5 +10,10 @@ public class Sniping : MonoBehaviour
     void Update()
     {
         this.transform.position = GameObject.FindWithTag("Player").GetComponent<CharacterManger>().myTarget.transform.position;
+        Destroy();
+    }
+    public void Destroy()
+    {
+        Destroy(gameObject,3.5f);
     }
 }

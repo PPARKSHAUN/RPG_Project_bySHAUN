@@ -29,6 +29,7 @@ public class BossDragon : MonoBehaviour
     public AudioClip beforebgm;
     public AudioClip fly;
     public AudioClip Fireballsound;
+    CharacterManger characterManger;
     private void Awake()
     {
 
@@ -42,9 +43,14 @@ public class BossDragon : MonoBehaviour
         myanim = GetComponent<Animator>();
         
     }
+    private void Start()
+    {
+        
+    }
     private void Update()
     {
         StateProcess();
+        characterManger = GameObject.FindWithTag("Player").GetComponent<CharacterManger>();
         Hpbar.fillAmount = (float)stat.curHp / (float)stat.maxHp;
         if (stat.curHp <= 0f)
         {
@@ -72,7 +78,7 @@ public class BossDragon : MonoBehaviour
             switch (collision.gameObject.tag)
             {
                 case "Arrow":
-                    int playerDamage = Random.Range((int)(CharacterManger.instance.stat.Damage * 1), (int)(CharacterManger.instance.stat.Damage * 1.2));
+                    int playerDamage = Random.Range((int)(characterManger.stat.Damage * 1), (int)(characterManger.stat.Damage * 1.2));
                     stat.curHp -= playerDamage;
                     if (stat.curHp <= 0f)
                     {
@@ -80,7 +86,7 @@ public class BossDragon : MonoBehaviour
                     }
                     break;
                 case "Bullet":
-                    playerDamage = (int)(CharacterManger.instance.stat.Damage * 0.5);
+                    playerDamage = (int)(characterManger.stat.Damage * 0.5);
                     stat.curHp -= playerDamage;   
                     if (stat.curHp <= 0f)
                     {
@@ -215,7 +221,7 @@ public class BossDragon : MonoBehaviour
                 myanim.SetTrigger("Die");
                 hpbarcanvas.SetActive(false);
                 StartCoroutine(Disapearing());
-                CharacterManger.instance.meetboos = false;
+                characterManger.meetboos = false;
 
                 break;
 

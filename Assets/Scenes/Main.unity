@@ -11111,8 +11111,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1958389540}
+  m_Children: []
   m_Father: {fileID: 1564811216}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -37295,85 +37294,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1946097553}
   m_CullTransparentMesh: 1
---- !u!1 &1958389539
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1958389540}
-  - component: {fileID: 1958389542}
-  - component: {fileID: 1958389541}
-  m_Layer: 5
-  m_Name: Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1958389540
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1958389539}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 595841085}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1958389541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1958389539}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: Button
---- !u!222 &1958389542
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1958389539}
-  m_CullTransparentMesh: 1
 --- !u!1 &1959495036
 GameObject:
   m_ObjectHideFlags: 0
@@ -43324,47 +43244,47 @@ MonoBehaviour:
       \uB9D0\uC744 \uAC78\uC5B4 \uCD08\uBCF4\uC790\uC6A9 \uC7A5\uBE44\uB97C \uC9C0\uAE09
       \uBC1B\uC73C\uC138\uC694."
     Rewarditems:
-    - ItemType: 
-      Type: 
+    - ItemType: Eqipment
+      Type: Helmet
       Name: "\uCD08\uBCF4\uC790\uC6A9 \uD5EC\uBA67"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uCD08\uBCF4\uC790\uC6A9\uD5EC\uBA67\uC774\uB2E4"
+      Number: 1
+      value: 30
       isUsing: 0
-    - ItemType: 
-      Type: 
+    - ItemType: Eqipment
+      Type: Armor
       Name: "\uCD08\uBCF4\uC790\uC6A9 \uC790\uCF13"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uCD08\uBCF4\uC790\uC6A9\uC790\uCF13\uC774\uB2E4"
+      Number: 1
+      value: 50
       isUsing: 0
-    - ItemType: 
-      Type: 
+    - ItemType: Eqipment
+      Type: Glove
       Name: "\uCD08\uBCF4\uC790\uC6A9 \uC7A5\uAC11"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uCD08\uBCF4\uC790\uC6A9\uC7A5\uAC11\uC774\uB2E4"
+      Number: 1
+      value: 15
       isUsing: 0
-    - ItemType: 
-      Type: 
+    - ItemType: Eqipment
+      Type: Shose
       Name: "\uCD08\uBCF4\uC790\uC6A9 \uC2E0\uBC1C"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uCD08\uBCF4\uC790\uC6A9\uC2E0\uBC1C\uC774\uB2E4"
+      Number: 1
+      value: 15
       isUsing: 0
-    - ItemType: 
-      Type: 
+    - ItemType: Accessory
+      Type: Ring
       Name: "\uB179\uC2A8 \uBC18\uC9C0"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uD5C8\uB984\uD55C \uBC18\uC9C0\uB2E4"
+      Number: 1
+      value: 30
       isUsing: 0
-    - ItemType: 
-      Type: 
+    - ItemType: Eqipment
+      Type: Weapon
       Name: "\uCD08\uBCF4\uC790\uC6A9 \uD65C"
-      Explain: 
-      Number: 
-      value: 
+      Explain: "\uCD08\uBCF4\uC790\uC6A9\uD65C\uC774\uB2E4"
+      Number: 1
+      value: 10
       isUsing: 0
     UnitCode: 0
     Questgoal:

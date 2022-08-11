@@ -7,12 +7,12 @@ using BackEnd;
 
 public class UserInfo : MonoBehaviour
 {
-     public static UserInfo instance=null;
+     public static UserInfo instance;
     public string CharacterClass;
     public string nickname;
     public Text nicknameText;
     public string myclass;
-
+    public string InDate;
     private void Awake()
     {
        // DontDestroyOnLoad(gameObject);
@@ -53,7 +53,12 @@ public class UserInfo : MonoBehaviour
         CharacterClass = DataManger.instance.curCharcter.ToString();
         Param param = new Param();
         param.Add("MyClass", CharacterClass);
-        Backend.GameData.Insert("Character", param);
+       var bro= Backend.GameData.Insert("Character", param);
+        if(bro.IsSuccess())
+        {
+            InDate = bro.GetInDate();
+            Debug.Log(bro.GetInDate());
+        }
 
     }
 

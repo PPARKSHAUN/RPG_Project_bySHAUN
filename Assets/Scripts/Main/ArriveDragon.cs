@@ -21,7 +21,7 @@ public class ArriveDragon : MonoBehaviour
             MainUi.SetActive(true);
             RockAnimCam.SetActive(true);
             HpbarCanvas.SetActive(true);
-            CharacterManger.instance.meetboos = true;
+            GameObject.FindWithTag("Player").GetComponent<CharacterManger>().meetboos = true;
         }
     }
 }

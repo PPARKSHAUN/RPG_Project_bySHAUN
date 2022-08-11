@@ -172,7 +172,7 @@ public class Monster : MonoBehaviour
 
             }
 
-            if(myState==State.DIE)
+            if(stat.curHp<=0)
             {
                
                
@@ -317,7 +317,7 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-                StopAllCoroutines();
+            
                 myCanvas.transform.gameObject.SetActive(false);
                
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작

@@ -5,9 +5,14 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using BackEnd;
+using LitJson;
 [System.Serializable]
 public class Item
 {
+    public Item()
+    {
+
+    }
     public Item(string _ItemType, string _Type, string _Name, string _Explain, string _Number, bool _isUsing, string _value) // 생성자 생성 
     {
         ItemType = _ItemType; // 밑에 값에다가 대입 해준다 
@@ -20,11 +25,13 @@ public class Item
     }
     public string ItemType, Type, Name, Explain, Number, value;
     public bool isUsing;
-
+    
 }
+
 
 public class GameManger : MonoBehaviour
 {
+    
     public static GameManger instance;
     public TextAsset ItemDatabase;// 아이템 데이터베이스를 연결해주기위해 선언 
     public List<Item> Alltem, MyItemList, CurItemList,UsingItemList,DropTabl,QuickSlotItem; //아이템을 리스트 해주기위해
@@ -40,7 +47,7 @@ public class GameManger : MonoBehaviour
     public Animator dropanim;
     GameObject player;
     public Text[] InvenStat;
-
+    string jdatamyitemlist;
     public AudioClip invenclick;
     Item CurItem;
     // Start is called before the first frame update
@@ -75,25 +82,26 @@ public class GameManger : MonoBehaviour
     }
     public void Inventorystat()
     {
-        InvenStat[0].text = "레벨 : "+ player.GetComponent<CharacterManger>().stat.Level.ToString();
-        InvenStat[1].text = "직업 : "+ player.GetComponent<CharacterManger>().unitCode.ToString();
-        InvenStat[2].text = "공격력 : "+(int)(player.GetComponent<CharacterManger>().stat.Damage) * 1 + "~" + (int)(player.GetComponent<CharacterManger>().stat.Damage) * 1.2;
-        InvenStat[3].text = "체력 : "+ player.GetComponent<CharacterManger>().stat.maxHp.ToString();
-        InvenStat[4].text = "마나 : "+ player.GetComponent<CharacterManger>().stat.curMp.ToString();
+        InvenStat[0].text = "레벨 : "+ GameObject.FindWithTag("Player").GetComponent<CharacterManger>().stat.Level.ToString();
+        InvenStat[1].text = "직업 : "+ GameObject.FindWithTag("Player").GetComponent<CharacterManger>().unitCode.ToString();
+        InvenStat[2].text = "공격력 : "+(int)(GameObject.FindWithTag("Player").GetComponent<CharacterManger>().stat.Damage) * 1 + "~" + (int)(GameObject.FindWithTag("Player").GetComponent<CharacterManger>().stat.Damage) * 1.2;
+        InvenStat[3].text = "체력 : "+ GameObject.FindWithTag("Player").GetComponent<CharacterManger>().stat.maxHp.ToString();
+        InvenStat[4].text = "마나 : "+ GameObject.FindWithTag("Player").GetComponent<CharacterManger>().stat.curMp.ToString();
     }
     public void InventoryButtonClick()
     {
         player = GameObject.FindWithTag("Player");
         SoundManger.instance.SFXPlay("Click", invenclick);
-        
-        bool click = true;
+        TabClick("Eqipment");
+        TabClick("All");
+  
        for(int i=0;i<off.Length;i++)
         {
-            off[i].SetActive(!click);
+            off[i].SetActive(false);
         }
        for(int i=0;i<on.Length;i++)
         {
-            on[i].SetActive(click);
+            on[i].SetActive(true);
         }
      
         Inventorystat();
@@ -103,38 +111,48 @@ public class GameManger : MonoBehaviour
     public void exitbutton()
     {
         SoundManger.instance.SFXPlay("Click", invenclick);
-        bool click = true;
+       
         for (int i = 0; i < off.Length; i++)
         {
-            off[i].SetActive(click);
+            off[i].SetActive(true);
         }
         for (int i = 0; i < on.Length; i++)
         {
-            on[i].SetActive(!click);
+            on[i].SetActive(false);
         }
         
     }
     public void DrawQuickslot() // 퀵슬롯 아이템갯수, 아이템아이콘 그려주는 역활 및 save 
     {
-        for(int i=0;i<QuickSlotItem.Count;i++)
+        if (QuickSlotItem == null)
         {
-            if(QuickSlotItem[i]!=null)//퀵슬롯 아이템리스트에 아이템이 존재한다면 
-            {
-                Item potion = MyItemList.Find(x => x.Name == QuickSlotItem[i].Name);
-                QuickSlotItem[i].Number = potion.Number;
-                InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); //연결된 인벤토리 퀵슬롯 갯수 text는 quickslotitem number를 받아서 넣어주고
-                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];//이미지도 같다
-
-            }
-            else // 존재하지않는다면  초기화 
-            {
-                InvenQuickSlot[i].GetComponentInChildren<Text>().text = null; 
-                InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = none;
-            }
-            MainQuickSlot[i].GetComponentInChildren<Text>().text = InvenQuickSlot[i].GetComponentInChildren<Text>().text;//메인 과 인벤 퀵슬롯연결 이하동문
-            MainQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite;
+            return;
         }
-        Save();//json데이터로 저장 
+        else
+        {
+
+
+            for (int i = 0; i < QuickSlotItem.Count; i++)
+            {
+                if (QuickSlotItem[i] != null)//퀵슬롯 아이템리스트에 아이템이 존재한다면 
+                {
+                    Item potion = MyItemList.Find(x => x.Name == QuickSlotItem[i].Name);
+                    QuickSlotItem[i].Number = potion.Number;
+                    InvenQuickSlot[i].GetComponentInChildren<Text>().text = QuickSlotItem[i].Number.ToString(); //연결된 인벤토리 퀵슬롯 갯수 text는 quickslotitem number를 받아서 넣어주고
+                    InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = ItemSprite[Alltem.FindIndex(x => x.Name == QuickSlotItem[i].Name)];//이미지도 같다
+
+                }
+                else // 존재하지않는다면  초기화 
+                {
+                    InvenQuickSlot[i].GetComponentInChildren<Text>().text = null;
+                    InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = none;
+                }
+                MainQuickSlot[i].GetComponentInChildren<Text>().text = InvenQuickSlot[i].GetComponentInChildren<Text>().text;//메인 과 인벤 퀵슬롯연결 이하동문
+                MainQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite = InvenQuickSlot[i].transform.GetChild(1).GetComponent<Image>().sprite;
+            }
+            Save();//json데이터로 저장 
+            TabClick(curTab);
+        }
     }
     public void registQuickSlot()//퀵슬롯아이템리스트에 등록함수 포션일때만 호출된다 
     {
@@ -164,7 +182,8 @@ public class GameManger : MonoBehaviour
     }
     public void MainQuickSlotClick(int slotNum)//메인 퀵슬롯 클릭 함수 
     {
-        if(QuickSlotItem[slotNum]!=null) // 퀵슬롯아이템리스트 i 가 null이 아니면 
+        player = GameObject.FindWithTag("Player");
+        if (QuickSlotItem[slotNum]!=null) // 퀵슬롯아이템리스트 i 가 null이 아니면 
         {
            switch( QuickSlotItem[slotNum].Type)//퀵슬롯 아이템이 hp 인지 mp 인지 구별후 
             {
@@ -175,10 +194,10 @@ public class GameManger : MonoBehaviour
                         QuickSlotItem[slotNum].Number = i.ToString();// 퀵슬롯아이템리스트에 갯수를 다시 넣어주고  
                         Item MyitemlistHp =MyItemList.Find(x=>x.Name == QuickSlotItem[slotNum].Name);
                         MyitemlistHp.Number = QuickSlotItem[slotNum].Number;
-                        CharacterManger.instance.stat.curHp += int.Parse(QuickSlotItem[slotNum].value);//캐릭터 cupHp에 value만큼 더해주고 
-                        if(CharacterManger.instance.stat.curHp>=CharacterManger.instance.stat.maxHp)// 만약 curHp가 maxHp 보다 크거나 같으면 
+                        player.GetComponent<CharacterManger>().stat.curHp += int.Parse(QuickSlotItem[slotNum].value);//캐릭터 cupHp에 value만큼 더해주고 
+                        if(player.GetComponent<CharacterManger>().stat.curHp>= player.GetComponent<CharacterManger>().stat.maxHp)// 만약 curHp가 maxHp 보다 크거나 같으면 
                         {
-                            CharacterManger.instance.stat.curHp = CharacterManger.instance.stat.maxHp;//curHp는 maxHp로 
+                            player.GetComponent<CharacterManger>().stat.curHp = player.GetComponent<CharacterManger>().stat.maxHp;//curHp는 maxHp로 
                         }
                     }
                     break;
@@ -189,10 +208,10 @@ public class GameManger : MonoBehaviour
                         QuickSlotItem[slotNum].Number = i.ToString();
                         Item MyitemlistMp = MyItemList.Find(x => x.Name == QuickSlotItem[slotNum].Name);
                         MyitemlistMp.Number = QuickSlotItem[slotNum].Number;
-                        CharacterManger.instance.stat.curMp += int.Parse(QuickSlotItem[slotNum].value);
-                        if (CharacterManger.instance.stat.curMp >= CharacterManger.instance.stat.maxMp)
+                        player.GetComponent<CharacterManger>().stat.curMp += int.Parse(QuickSlotItem[slotNum].value);
+                        if (player.GetComponent<CharacterManger>().stat.curMp >= player.GetComponent<CharacterManger>().stat.maxMp)
                         {
-                            CharacterManger.instance.stat.curMp = CharacterManger.instance.stat.maxMp;
+                            player.GetComponent<CharacterManger>().stat.curMp = player.GetComponent<CharacterManger>().stat.maxMp;
                         }
                     }
                     break;
@@ -217,9 +236,9 @@ public class GameManger : MonoBehaviour
                      UsingItem = MyItemList.Find(x => x.Type == "Armor" && x.isUsing == true); // 내아이템중 타입이 아머이면서 사용중인것을 찾는다.
                     if(UsingItem != null && CurItem != UsingItem) // 만약 사용중인Armor 가 없고 클릭한 아이템 사용중인것과 같지않다면 
                     {
-                    CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);//사용중인 armor value값 빼주기
+                    player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);//사용중인 armor value값 빼주기
                         UsingItem.isUsing = false; //사용중인 armor using false
-                    CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);// 클릭한 armor value값 더해주기
+                    player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);// 클릭한 armor value값 더해주기
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     }
                     else
@@ -228,11 +247,11 @@ public class GameManger : MonoBehaviour
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     if (CurItem.isUsing == true)// 클릭했을때 true로 변경된다면
                     {
-                        CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);// 클릭한 armor value값 더해주기
+                        player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);// 클릭한 armor value값 더해주기
                     }
                     else//클릭했을때 false 라면
                     {
-                        CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);//클릭한 armor value값 빼주기
+                        player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);//클릭한 armor value값 빼주기
                     }
                 }
                     break;
@@ -240,9 +259,9 @@ public class GameManger : MonoBehaviour
                 UsingItem = MyItemList.Find(x => x.Type == "Helmet" && x.isUsing == true); // 내아이템중 타입이 아머인것을 찾는다.
                 if (UsingItem != null && CurItem != UsingItem)
                 {
-                    CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     UsingItem.isUsing = false;
-                    CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                 }
                 else
@@ -251,11 +270,11 @@ public class GameManger : MonoBehaviour
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     if(CurItem.isUsing==true)
                     {
-                        CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     }
                     else
                     {
-                        CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     }
                 }
                 break;
@@ -263,9 +282,9 @@ public class GameManger : MonoBehaviour
                 UsingItem = MyItemList.Find(x => x.Type == "Glove" && x.isUsing == true);
                 if (UsingItem != null && CurItem != UsingItem)
                 {
-                    CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     UsingItem.isUsing = false;
-                    CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                 }
                 else
@@ -273,11 +292,11 @@ public class GameManger : MonoBehaviour
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     if (CurItem.isUsing == true)
                     {
-                        CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     }
                     else
                     {
-                        CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     }
                 }
                 break;
@@ -285,9 +304,9 @@ public class GameManger : MonoBehaviour
                 UsingItem = MyItemList.Find(x => x.Type == "Wepon" && x.isUsing == true);
                 if (UsingItem != null && CurItem != UsingItem)
                 {
-                    CharacterManger.instance.stat.Damage -= int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.Damage -= int.Parse(UsingItem.value);
                     UsingItem.isUsing = false;
-                    CharacterManger.instance.stat.Damage += int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.Damage += int.Parse(UsingItem.value);
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                 }
                 else
@@ -296,11 +315,11 @@ public class GameManger : MonoBehaviour
     
                     if (CurItem.isUsing == true)
                     {
-                        CharacterManger.instance.stat.Damage += int.Parse(CurItem.value);
+                        player.GetComponent<CharacterManger>().stat.Damage += int.Parse(CurItem.value);
                     }
                     else
                     {
-                        CharacterManger.instance.stat.Damage -= int.Parse(UsingItem.value);
+                        player.GetComponent<CharacterManger>().stat.Damage -= int.Parse(UsingItem.value);
                     }
                 }
                 break;
@@ -308,9 +327,9 @@ public class GameManger : MonoBehaviour
                 UsingItem = MyItemList.Find(x => x.Type == "Shose" && x.isUsing == true);
                 if (UsingItem != null && CurItem != UsingItem)
                 {
-                    CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     UsingItem.isUsing = false;
-                    CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                 }
                 else
@@ -318,11 +337,11 @@ public class GameManger : MonoBehaviour
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     if (CurItem.isUsing == true)
                     {
-                        CharacterManger.instance.stat.maxHp += int.Parse(CurItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp += int.Parse(CurItem.value);
                     }
                     else
                     {
-                        CharacterManger.instance.stat.maxHp -= int.Parse(UsingItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxHp -= int.Parse(UsingItem.value);
                     }
                 }
                 break;
@@ -330,9 +349,9 @@ public class GameManger : MonoBehaviour
                 UsingItem = MyItemList.Find(x => x.Type == "Ring" && x.isUsing == true);
                 if (UsingItem != null && CurItem != UsingItem)
                 {
-                    CharacterManger.instance.stat.maxMp -= int.Parse(UsingItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxMp -= int.Parse(UsingItem.value);
                     UsingItem.isUsing = false;
-                    CharacterManger.instance.stat.maxMp += int.Parse(CurItem.value);
+                    player.GetComponent<CharacterManger>().stat.maxMp += int.Parse(CurItem.value);
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                 }
                 else
@@ -340,17 +359,18 @@ public class GameManger : MonoBehaviour
                     CurItem.isUsing = !CurItem.isUsing; // 현재 클릭한 슬롯 false 면 true 로 true 면 false 로 변경. 이하동문 
                     if (CurItem.isUsing == true)
                     {
-                        CharacterManger.instance.stat.maxMp += int.Parse(CurItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxMp += int.Parse(CurItem.value);
                     }
                     else
                     {
-                        CharacterManger.instance.stat.maxMp -= int.Parse(UsingItem.value);
+                        player.GetComponent<CharacterManger>().stat.maxMp -= int.Parse(UsingItem.value);
                     }
                 }
                 break;
             }
         Inventorystat();
         DrawQuickslot();
+        TabClick(curTab);
         Save();// json 데이터로 저장 사용중인것들 
     }
 
@@ -539,6 +559,7 @@ public class GameManger : MonoBehaviour
             MyItemList.Add(getitem);
         }
         Save();
+        TabClick(curTab);
     }
     public void RemoveItem(Item useItem)
     {
@@ -654,32 +675,64 @@ public class GameManger : MonoBehaviour
     }
     public void Save()
     {
-        string jdatamyitemlist = JsonConvert.SerializeObject(MyItemList); // string에 내 아이템리스트를 json으로 바꿔줘서 넣어주고 
-        string jdatamyquickslot = JsonConvert.SerializeObject(QuickSlotItem);
-        File.WriteAllText(Application.dataPath + "/Resources/MyItemText.txt", jdatamyitemlist);
-        File.WriteAllText(Application.dataPath + "/Resources/MyQuickSlot.txt", jdatamyquickslot);// 이파일을 Resources 폴더에 MyItemText jdata로 저장해준다 
-        TabClick(curTab); // 탭클릭호출 
+        JsonData itemlist = JsonMapper.ToJson(MyItemList);
+        JsonData quickslotItem = JsonMapper.ToJson(QuickSlotItem);
         
-      
-    }
+        Where where = new Where();
+        var bro = Backend.GameData.GetMyData("Character", where);
+        string inDate;
+        Param param = new Param();
+        param.Add("Itemlist", itemlist);
+        param.Add("QuickSlot", quickslotItem);
+        //내 데이터의 inDate가져오기
+        if (bro.Rows().Count > 0)
+        {
+            inDate = bro.Rows()[0]["inDate"]["S"].ToString();
+            Backend.GameData.UpdateV2("Character", inDate, Backend.UserInDate, param);
+          
+           
+        }
 
+        TabClick(curTab); // 탭클릭호출 
+
+
+    }
+   
+    
     public void Load()
     {
-        if (File.Exists(Application.dataPath + "/Resources/MyItemText.txt")&& File.Exists(Application.dataPath + "/Resources/MyQuickSlot.txt"))
+       /* BackendReturnObject bro;
+        bro = Backend.GameData.Get("Itemlist", new Where());
+        if(bro.IsSuccess())
         {
-            string jdatamyitemlist = File.ReadAllText(Application.dataPath + "/Resources/MyItemText.txt");
-            MyItemList = JsonConvert.DeserializeObject<List<Item>>(jdatamyitemlist); // Convert하여 Myitemlist에 넣어준다 
-            string jdatamyquickslot = File.ReadAllText(Application.dataPath + "/Resources/MyQuickSlot.txt");// 내아이템 리스트 를 읽어오고 QuickSlotItem = JsonConvert.DeserializeObject<List<Item>>(jdatamyquickslot);
+            var _json = bro.FlattenRows();
+            foreach(JsonData js in _json)
+            {
+                var myItemList = JsonMapper.ToObject<List<Item>>(js["Itemlist"].ToJson());
+                foreach(Item tempClass in myItemList)
+                {
+                    Debug.Log(tempClass.ToString());
+                }
+            }
+        }*/
 
-            TabClick(curTab); // 처음 탭클릭 호출
-        }
-        else
-        {
-            TabClick(curTab); // 처음 탭클릭 호출
-            Save();
-        }
-            
         
+        
+    
+        var bro = Backend.GameData.GetMyData("Character", new Where());
+        //bro[0] 은 제일 최신의 row입니다.
+        for (int i = 0; i < bro.Rows().Count; ++i)
+        {
+            string jdatamyitemlist = bro.Rows()[i]["Itemlist"]["S"].ToString();
+           
+            MyItemList = JsonMapper.ToObject<List<Item>>(jdatamyitemlist);
+            string jdataQuick = bro.Rows()[i]["QuickSlot"]["S"].ToString();
+          
+            QuickSlotItem=JsonMapper.ToObject<List<Item>>(jdataQuick);
+        }
+
+
     }
+    
   
 }

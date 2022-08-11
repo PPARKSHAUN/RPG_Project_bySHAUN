@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-using Newtonsoft.Json;
-using System.IO;
 
+using System.IO;
+using BackEnd;
+using LitJson;
+using UnityEngine.Events;
 public class CharacterManger : MonoBehaviour
 {
     public static CharacterManger instance;
@@ -45,7 +47,7 @@ public class CharacterManger : MonoBehaviour
     public Image mpbar; //상단 mp바
     public Text hp, mp;//상단 hp mp 표시 텍스트
     public List<Quest> myquests = null;
-    public int questchapter = 1;
+    public int questchapter = 0;
     public bool meetboos = false;
     public GameObject Snipingprefab;
     public Image cooltimeimg;
@@ -89,24 +91,37 @@ public class CharacterManger : MonoBehaviour
     }
     void Save()
     {
-        string jdata = JsonConvert.SerializeObject(stat); // jdata 에 내 스탯 넣어주기
-        File.WriteAllText(Application.dataPath + "/Resources/Mystat.txt", jdata); // 이파일을 Resources 폴더에 Mystat jdata로 저장해준다 
+        string jdata = JsonMapper.ToJson(stat); // jdata 에 내 스탯 넣어주기
+        Where where = new Where();
+        Param param = new Param();
+        param.Add("Stat", jdata);
+        var bro = Backend.GameData.GetMyData("Character", where);
+        if (bro.Rows().Count > 0)
+        {
+            string inDate = bro.Rows()[0]["inDate"]["S"].ToString();
+            Backend.GameData.UpdateV2("Character", inDate, Backend.UserInDate, param);
+           
+        }
 
     }
+    
     void Load()
     {
-        if(File.Exists(Application.dataPath + "/Resources/Mystat.txt"))
+        var bro = Backend.GameData.GetMyData("Character", new Where());
+        //bro[0] 은 제일 최신의 row입니다.
+        for (int i = 0; i < bro.Rows().Count; ++i)
         {
-            string jdata = File.ReadAllText(Application.dataPath + "/Resources/Mystat.txt"); // 내 스탯을 읽어오고 
-
-            stat = JsonConvert.DeserializeObject<Stat>(jdata); // Convert하여 stat에 넣어준다 
+            string jdataStat = bro.Rows()[i]["Stat"]["S"].ToString();
+          
+            if(jdataStat!=null)
+            {
+                stat = JsonMapper.ToObject<Stat>(jdataStat);
+            }
+            
+           
         }
        
-       else
-        {
-            Save();
-        }
-           
+
 
     }
     public void myCondition()
@@ -324,6 +339,7 @@ public class CharacterManger : MonoBehaviour
 
     public void DrawArrow()
     {
+        SoundManger.instance.SFXPlay("PlayerAttack", basicattack[Random.Range(0, Damage.Length)]);
         GameObject go = Instantiate(arrow, arrowpoint.transform.position, arrowpoint.transform.rotation);
         SoundManger.instance.SFXPlay("ArrowShoot", ArrowShoot);
         CanMove = true;
@@ -349,7 +365,7 @@ public class CharacterManger : MonoBehaviour
                 if(myTarget !=null) // 내타겟이 null 이 아니라면 
                 {
                     CanMove = false; // 움직임제한
-                    SoundManger.instance.SFXPlay("PlayerAttack", basicattack[Random.Range(0, Damage.Length)]);
+                    
                     float dist = Vector3.Distance(this.transform.position,myTarget.transform.position);  // 거리값을구해서
                     myanim.SetTrigger("Attack"); // 어택 트리거 활성화 
                     transform.LookAt(myTarget.transform); // 타겟바라보게 
