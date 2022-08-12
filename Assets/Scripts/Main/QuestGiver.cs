@@ -99,7 +99,7 @@ public class QuestGiver : MonoBehaviour
         GameObject MainManger = GameObject.Find("MainManager");
         for (int i=0;i < quest[player.GetComponent<CharacterManger>().questchapter].Rewarditems.Count; i++)
         {
-            Item item = MainManger.GetComponent<GameManger>().Alltem.Find(x => x.Name == quest[player.GetComponent<CharacterManger>().questchapter].Rewarditems[i].Name);
+            Item item = quest[player.GetComponent<CharacterManger>().questchapter].Rewarditems[i];
             if (quest[player.GetComponent<CharacterManger>().questchapter].questid==1)
             {
                 Item Potion = MainManger.GetComponent<GameManger>().MyItemList.Find(x => x.Name == item.Name);
@@ -137,7 +137,7 @@ public class QuestGiver : MonoBehaviour
       
         GameObject.FindWithTag("Player").GetComponent<CharacterManger>().myquests.Remove(CharacterManger.instance.myquests[CharacterManger.instance.questchapter]);
         GameObject.FindWithTag("Player").GetComponent<CharacterManger>().questchapter += 1;//퀘스트 진행도 1 증가 
-        GameObject.Find("MainManager").GetComponent<GameManger>().Save();
+        //GameObject.Find("MainManager").GetComponent<GameManger>().Save();
         //GameObject.Find("MainManager").GetComponent<GameManger>().DrawQuickslot();
     }
        

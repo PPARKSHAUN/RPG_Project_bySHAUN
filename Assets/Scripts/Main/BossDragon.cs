@@ -24,7 +24,7 @@ public class BossDragon : MonoBehaviour
     public BoxCollider MeteorArea;
     public Image Hpbar;
     public GameObject Metor;
-    
+    public GameObject basicattack;
     public AudioClip Dragonbgm;
     public AudioClip beforebgm;
     public AudioClip fly;
@@ -115,9 +115,10 @@ public class BossDragon : MonoBehaviour
             }
             else
             {
-                Debug.Log("BasicAttack");
                 myanim.SetTrigger("BasicAttack");
-                yield return new WaitForSeconds(2f);
+                basicattack.SetActive(true);
+                yield return new WaitForSeconds(3f);
+                basicattack.SetActive(false);
             }
 
         }
@@ -139,7 +140,7 @@ public class BossDragon : MonoBehaviour
                 Debug.Log(p);
                 if (p <= 20)
                 {
-                    StartCoroutine(CreateMeteor());
+                    //StartCoroutine(CreateMeteor());
                     yield return new WaitForSeconds(12f);
                 }
                 else
@@ -153,7 +154,9 @@ public class BossDragon : MonoBehaviour
             else
             {
                 myanim.SetTrigger("BasicAttack");
-                yield return new WaitForSeconds(2f);
+                basicattack.SetActive(true);
+                yield return new WaitForSeconds(3f);
+                basicattack.SetActive(false);
             }
 
 

@@ -10,8 +10,8 @@ public class BGM : MonoBehaviour
     public  AudioMixer mixer;
     static AudioSource bgm;
     public AudioClip[] audioClips;
-    public Slider slider;
-    public float volum=1;
+    
+  
 
     private void Awake()
     {
@@ -47,7 +47,7 @@ public class BGM : MonoBehaviour
     {
         
         mixer.SetFloat("BGM", Mathf.Log10(val) * 20);
-        volum =  val;
+        
     }
 
     public  void StopMusic()

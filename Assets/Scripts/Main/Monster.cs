@@ -110,6 +110,7 @@ public class Monster : MonoBehaviour
         myCanvas.transform.gameObject.SetActive(false);
 
         myrenderer.material.color = Color.grey;// 몬스터 색깔 회색으로 변경
+        
         yield return new WaitForSeconds(1.0f); // 1초뒤
        
         float dist = 1.0f; //1.0f 만큼 내려가게하려고 dist 설정
@@ -172,12 +173,7 @@ public class Monster : MonoBehaviour
 
             }
 
-            if(stat.curHp<=0)
-            {
-               
-               
-                nav.isStopped = true;
-            }
+           
 
 
 
@@ -317,7 +313,9 @@ public class Monster : MonoBehaviour
                 StartCoroutine(Battle()); // 스타트 코루틴 배틀 
                 break;
             case State.DIE: // die 상태로돌입하면 
-            
+                StopAllCoroutines();
+                nav.isStopped = true;
+               
                 myCanvas.transform.gameObject.SetActive(false);
                
                 StartCoroutine(Disapearing()); // Disapearing 코루틴 시작

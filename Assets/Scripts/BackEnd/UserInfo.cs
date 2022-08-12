@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using BackEnd;
+using LitJson;
 
 
 public class UserInfo : MonoBehaviour
@@ -50,10 +51,13 @@ public class UserInfo : MonoBehaviour
     }
     public void ToParam()
     {
+        string s = "false";
         CharacterClass = DataManger.instance.curCharcter.ToString();
         Param param = new Param();
         param.Add("MyClass", CharacterClass);
-       var bro= Backend.GameData.Insert("Character", param);
+        param.Add("Save", s);
+ 
+        var bro= Backend.GameData.Insert("Character", param);
         if(bro.IsSuccess())
         {
             InDate = bro.GetInDate();

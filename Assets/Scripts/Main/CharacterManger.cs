@@ -60,6 +60,7 @@ public class CharacterManger : MonoBehaviour
     public AudioClip[] Damage;
     public AudioClip Skill01;
     public AudioClip[] basicattack;
+    string save;
     private void Start()
     {
         cam = Camera.main.transform;
@@ -91,10 +92,12 @@ public class CharacterManger : MonoBehaviour
     }
     void Save()
     {
+        string jsave = "true";
         string jdata = JsonMapper.ToJson(stat); // jdata 에 내 스탯 넣어주기
         Where where = new Where();
         Param param = new Param();
         param.Add("Stat", jdata);
+        param.Add("Save", jsave);
         var bro = Backend.GameData.GetMyData("Character", where);
         if (bro.Rows().Count > 0)
         {
@@ -107,19 +110,41 @@ public class CharacterManger : MonoBehaviour
     
     void Load()
     {
-        var bro = Backend.GameData.GetMyData("Character", new Where());
-        //bro[0] 은 제일 최신의 row입니다.
-        for (int i = 0; i < bro.Rows().Count; ++i)
+
+        
+        var s = Backend.GameData.GetMyData("Character", new Where());
+        for (int i = 0; i < s.Rows().Count; ++i)
         {
-            string jdataStat = bro.Rows()[i]["Stat"]["S"].ToString();
-          
-            if(jdataStat!=null)
+            var Bro = s.Rows()[i]["Save"]["S"].ToString();
+
+            if (Bro != null)
             {
-                stat = JsonMapper.ToObject<Stat>(jdataStat);
+                save= Bro;
             }
-            
-           
+
+
         }
+        if (save=="true")
+        {
+            var bro = Backend.GameData.GetMyData("Character", new Where());
+            //bro[0] 은 제일 최신의 row입니다.
+            for (int i = 0; i < bro.Rows().Count; ++i)
+            {
+                var Bro = bro.Rows()[i]["Stat"]["S"].ToString();
+
+                if (Bro != null)
+                {
+                    stat = JsonMapper.ToObject<Stat>(Bro);
+                }
+
+
+            }
+        }
+       
+           
+
+     
+       
        
 
 
@@ -201,6 +226,17 @@ public class CharacterManger : MonoBehaviour
 
                 StartCoroutine(Ondamage()); // 코루틴시작 
 
+            }
+        }
+        if(other.tag=="BossDragon")
+        {
+            if(!isDamage)
+            {
+                SoundManger.instance.SFXPlay("Damge", Damage[Random.Range(0, Damage.Length)]);
+                int dmage;
+                dmage = other.GetComponentInParent<BossDragon>().stat.Damage;
+                stat.curHp -= dmage;
+                StartCoroutine(Ondamage()); //
             }
         }
         
